@@ -1,29 +1,65 @@
-from config import *
-import itertools
-from card import Card
+# Constants
+precision = 2
+suit_index_dict = {"s": 0, "c": 1, "h": 2, "d": 3}
+reverse_suit_index = ("s", "c", "h", "d")
+val_string = "AKQJT98765432"
+hand_rankings = ("High Card", "Pair", "Two Pair", "Three of a Kind",
+                 "Straight", "Flush", "Full House", "Four of a Kind",
+                 "Straight Flush", "Royal Flush")
+suit_value_dict = {"T": 10, "J": 11, "Q": 12, "K": 13, "A": 14}
+for num in range(2, 10):
+    suit_value_dict[str(num)] = num
+
+
+class Card:
+    # Takes in strings of the format: "As", "Tc", "6d"
+    def __init__(self, card_string):
+        value, self.suit = card_string[0], card_string[1]
+        self.value = suit_value_dict[value]
+        self.suit_index = suit_index_dict[self.suit]
+
+    def __str__(self):
+        return val_string[14 - self.value] + self.suit
+
+    def __repr__(self):
+        return val_string[14 - self.value] + self.suit
+
+    def __eq__(self, other):
+        if self is None:
+            return other is None
+        elif other is None:
+            return False
+        return self.value == other.value and self.suit == other.suit
+
+# Returns deck of cards with all hole cards and board cards removed
 
 
 def generate_deck(hole_cards, board):
     deck = []
-    for suit in SUITS:
-        for value in CARDS:
-            deck.append(Card(f"{value}{suit}"))
-
-    taken_cards = hole_cards + board
-    print(taken_cards)
+    for suit in reverse_suit_index:
+        for value in val_string:
+            deck.append(Card(value + suit))
+    taken_cards = []
+    for hole_card in hole_cards:
+        for card in hole_card:
+            if card is not None:
+                taken_cards.append(card)
+    if board and len(board) > 0:
+        taken_cards.extend(board)
     for taken_card in taken_cards:
         deck.remove(taken_card)
-
     return tuple(deck)
 
 # Generate all possible hole card combinations
 
 
 def generate_hole_cards(deck):
+    import itertools
     return itertools.combinations(deck, 2)
 
-
 # Generate num_iterations random boards
+
+
 def generate_random_boards(deck, num_iterations, board_length):
     import random
     import time
@@ -35,6 +71,7 @@ def generate_random_boards(deck, num_iterations, board_length):
 
 
 def generate_exhaustive_boards(deck, num_iterations, board_length):
+    import itertools
     return itertools.combinations(deck, 5 - board_length)
 
 # Returns a board of cards all with suit = flush_index
@@ -172,21 +209,18 @@ def get_high_cards(histogram_board):
 # High Card: (0, [high card, second high card, third high card, etc.])
 
 
-def detect_hand(hole_card, given_board, suit_histogram,
+def detect_hand(hole_cards, given_board, suit_histogram,
                 full_histogram, max_suit):
     # Determine if flush possible. If yes, four of a kind and full house are
     # impossible, so return royal, straight, or regular flush.
     if max_suit >= 3:
         flush_index = suit_histogram.index(max_suit)
-        #print("Hole Cards:", hole_card)
-        # for hole_card in hole_cards:
-
-        if hole_card.suit_index == flush_index:
-            max_suit += 1
-
+        for hole_card in hole_cards:
+            if hole_card.suit_index == flush_index:
+                max_suit += 1
         if max_suit >= 5:
             flat_board = list(given_board)
-            flat_board.append(hole_card)
+            flat_board.extend(hole_cards)
             suit_board = generate_suit_board(flat_board, flush_index)
             result = detect_straight_flush(suit_board)
             if result[0]:
@@ -195,8 +229,8 @@ def detect_hand(hole_card, given_board, suit_histogram,
 
     # Add hole cards to histogram data structure and process it
     full_histogram = full_histogram[:]
-    # for hole_card in hole_cards:
-    full_histogram[14 - hole_card.value] += 1
+    for hole_card in hole_cards:
+        full_histogram[14 - hole_card.value] += 1
     histogram_board = preprocess(full_histogram)
 
     # Find which card value shows up the most and second most times
@@ -252,16 +286,16 @@ def print_results(hole_cards, winner_list, result_histograms):
     float_iterations = float(sum(winner_list))
     print("Winning Percentages:")
     for index, hole_card in enumerate(hole_cards):
-        winning_percentage = float(winner_list[index + 1]) / float_iterations
+        winning_percentage = round(float(winner_list[index + 1]) / float_iterations, precision)
         if hole_card == (None, None):
             print("(?, ?) : ", winning_percentage)
         else:
             print(hole_card, ": ", winning_percentage)
-    print("Ties: ", float(winner_list[0]) / float_iterations, "\n")
+    print("Ties: ", round(float(winner_list[0]) / float_iterations, precision), "\n")
     for player_index, histogram in enumerate(result_histograms):
         print("Player" + str(player_index + 1) + " Histogram: ")
         for index, elem in enumerate(histogram):
-            print(HAND_RANKINGS[index], ": ", float(elem) / float_iterations)
+            print(hand_rankings[index], ": ", round(float(elem) / float_iterations, precision))
         print
 
 # Returns the winning percentages
@@ -271,19 +305,18 @@ def find_winning_percentage(winner_list):
     float_iterations = float(sum(winner_list))
     percentages = []
     for num_wins in winner_list:
-        winning_percentage = float(num_wins) / float_iterations
+        winning_percentage = round(float(num_wins) / float_iterations, precision)
         percentages.append(winning_percentage)
     return percentages
 
 # Populate provided data structures with results from simulation
 
 
-def find_winner(generate_boards, deck, hole_cards, num,
+def find_winner(generate_boards, deck, hole_cards, num, board_length,
                 given_board, winner_list, result_histograms):
     # Run simulations
     result_list = [None] * len(hole_cards)
-
-    for remaining_board in generate_boards(deck, num, len(given_board)):
+    for remaining_board in generate_boards(deck, num, board_length):
         # Generate a new board
         if given_board:
             board = given_board[:]
@@ -294,9 +327,7 @@ def find_winner(generate_boards, deck, hole_cards, num,
         # hole cards and save them in the results data structures
         suit_histogram, histogram, max_suit = (
             preprocess_board(board))
-        print(hole_cards)
         for index, hole_card in enumerate(hole_cards):
-            #print(index, hole_card)
             result_list[index] = detect_hand(hole_card, board, suit_histogram,
                                              histogram, max_suit)
         # Find the winner of the hand and tabulate results

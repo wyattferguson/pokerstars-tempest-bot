@@ -1,5 +1,5 @@
 from config import *
-from simulate import Simulate
+import holdem_calc
 
 
 def run():
@@ -8,5 +8,13 @@ def run():
 
 
 if __name__ == "__main__":
-    poker = Simulate(["As", "Ks", "Jd"], True, 10000, ["8s", "7s", "Qc", "Th"])
-    print(poker.calculate())
+    #board = ["As", "Ks", "Jd"]
+    board = None
+    exact_precision = False
+    interations = 10000
+    hand = ["8s", "7s", "?", "?"]
+    verbose = True
+
+    #   Tie, Win, Loss
+    #  [0.08, 0.48, 0.43]
+    print(holdem_calc.calculate(board, exact_precision, interations, hand, verbose))
