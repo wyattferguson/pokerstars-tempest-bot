@@ -1,28 +1,18 @@
-# Constants
-precision = 2
-suit_index_dict = {"s": 0, "c": 1, "h": 2, "d": 3}
-reverse_suit_index = ("s", "c", "h", "d")
-val_string = "AKQJT98765432"
-hand_rankings = ("High Card", "Pair", "Two Pair", "Three of a Kind",
-                 "Straight", "Flush", "Full House", "Four of a Kind",
-                 "Straight Flush", "Royal Flush")
-suit_value_dict = {"T": 10, "J": 11, "Q": 12, "K": 13, "A": 14}
-for num in range(2, 10):
-    suit_value_dict[str(num)] = num
+from config import *
 
 
 class Card:
     # Takes in strings of the format: "As", "Tc", "6d"
     def __init__(self, card_string):
         value, self.suit = card_string[0], card_string[1]
-        self.value = suit_value_dict[value]
-        self.suit_index = suit_index_dict[self.suit]
+        self.value = CARD_VALUES[value]
+        self.suit_index = SUITS_INDEX[self.suit]
 
     def __str__(self):
-        return val_string[14 - self.value] + self.suit
+        return CARDS_STR[14 - self.value] + self.suit
 
     def __repr__(self):
-        return val_string[14 - self.value] + self.suit
+        return CARDS_STR[14 - self.value] + self.suit
 
     def __eq__(self, other):
         if self is None:
@@ -36,8 +26,8 @@ class Card:
 
 def generate_deck(hole_cards, board):
     deck = []
-    for suit in reverse_suit_index:
-        for value in val_string:
+    for suit in SUITS_SINGLE:
+        for value in CARDS_STR:
             deck.append(Card(value + suit))
     taken_cards = []
     for hole_card in hole_cards:
@@ -286,16 +276,16 @@ def print_results(hole_cards, winner_list, result_histograms):
     float_iterations = float(sum(winner_list))
     print("Winning Percentages:")
     for index, hole_card in enumerate(hole_cards):
-        winning_percentage = round(float(winner_list[index + 1]) / float_iterations, precision)
+        winning_percentage = round(float(winner_list[index + 1]) / float_iterations, PRECISION)
         if hole_card == (None, None):
             print("(?, ?) : ", winning_percentage)
         else:
             print(hole_card, ": ", winning_percentage)
-    print("Ties: ", round(float(winner_list[0]) / float_iterations, precision), "\n")
+    print("Ties: ", round(float(winner_list[0]) / float_iterations, PRECISION), "\n")
     for player_index, histogram in enumerate(result_histograms):
         print("Player" + str(player_index + 1) + " Histogram: ")
         for index, elem in enumerate(histogram):
-            print(hand_rankings[index], ": ", round(float(elem) / float_iterations, precision))
+            print(HAND_RANKINGS[index], ": ", round(float(elem) / float_iterations, PRECISION))
         print
 
 # Returns the winning percentages
@@ -305,7 +295,7 @@ def find_winning_percentage(winner_list):
     float_iterations = float(sum(winner_list))
     percentages = []
     for num_wins in winner_list:
-        winning_percentage = round(float(num_wins) / float_iterations, precision)
+        winning_percentage = round(float(num_wins) / float_iterations, PRECISION)
         percentages.append(winning_percentage)
     return percentages
 

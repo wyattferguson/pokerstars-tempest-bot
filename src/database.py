@@ -1,0 +1,212 @@
+import sqlite3
+from sqlite3 import Error
+from pathlib import Path
+from config import *
+
+
+class DB:
+    """
+    Generic sqlLite3 library
+    """
+
+    def __init__(self) -> None:
+        try:
+            db_path = Path(__file__).parent / DATABASE
+            self.conn = sqlite3.connect(db_path)
+            self.conn.row_factory = sqlite3.Row
+            self.cur = self.conn.cursor()
+        except Error as e:
+            raise RuntimeError(f"Could not connect to Database: {e}")
+
+    def update(self, table: str = "matches", data: dict = {}, id_field: str = "id", id_value: any = 0) -> bool:
+        """
+        Generic update function
+
+        Args:
+            table (str): Table name. Defaults to "matches".
+            data (dict): Dictionary of values.
+            id_field (int): Id field name. Defaults to "id".
+            id_value (int): Id value.
+        """
+        values = ""
+        for key, val in data.items():
+            values += f"{key} = "
+            values += f"{val}," if isinstance(val, int) else f"'{val}',"
+
+        where = f"{id_field} = "
+        where += f"{id_value}" if isinstance(id_value, int) else f"'{id_value}'"
+        qry = f"UPDATE {table} SET {values[:-1]} WHERE {where}"
+        self.cur.execute(qry)
+        self.conn.commit()
+        return True if self.cur.rowcount > 0 else False
+
+    def insert(self, table: str, values: dict) -> None:
+        """
+        Generic insert, serializes values for insertion
+
+        Args:
+            table (str): Table name.
+            values (dict): Dictionary of key->value data
+        """
+        keys = ','.join(values.keys())
+        marks = ','.join(list('?' * len(values)))
+        values = tuple(values.values())
+        self.conn.execute('INSERT INTO ' + table +
+                          ' (' + keys + ') VALUES (' + marks + ')', values)
+        self.conn.commit()
+
+    def match_exists(self, name: str, game_id: str, role: str = "player") -> bool:
+        """
+        Check if game already exists in player_matches
+
+        Args:
+            player (str): Player name
+            game_id (str): Oracle Game ID
+
+        Returns:
+            bool: True game exisists, False game hasnt been recored yet.
+        """
+        qry = f"SELECT COUNT(*) FROM {role}_matches WHERE {role} = '{name}' AND game_id = '{game_id}'"
+        cnt = self.conn.execute(qry)
+        return True if cnt.fetchone()[0] else False
+
+    def get_by_game_id(self, table: str, game_id: str, team: str, return_single: bool = False) -> list:
+        """Get rows by game_id and team name"""
+        qry = f"SELECT * FROM {table} WHERE game_id = '{game_id}' AND team = '{team}'"
+        return self._run(qry, return_single)
+
+    def get_features(self, min_val: int = 0, role: str = "team"):
+        """Get features for model training
+
+        Args:
+            min_val (int): Minimum abs value of the slope for a feature
+        """
+
+        qry = f"SELECT * FROM features WHERE abs_val > {min_val} AND role = '{role}' ORDER BY abs_val ASC"
+        return self._run(qry, False)
+
+    def distinct(
+        self, table: str, select: str, where_field: str = False, where_value: str = False, order_by: str = False, direction: str = False
+    ) -> list:
+        """Get only unique results for a given field"""
+        if not table:
+            raise ValueError("Table name not provided.")
+
+        if not select:
+            raise ValueError("Select field must be included.")
+
+        qry = f"SELECT DISTINCT {select} FROM {table} "
+        if where_field:
+            qry += f"WHERE {where_field} = '{where_value}' "
+        if order_by and direction:
+            qry += f"ORDER BY {order_by} {direction}"
+
+        return self._run(qry, False)
+
+    def get_match_side(self, game_id, side, date):
+        qry = f"SELECT * FROM team_matches WHERE game_id = '{game_id}' AND side = {side} AND date = '{date}'"
+        return self._run(qry)
+
+    def get_matches_for_pairs(self):
+        qry = f"SELECT * FROM team_matches WHERE side = 1 AND scraped = 0"
+        return self._run(qry, False)
+
+    def get(self, table: str, where_field: str = False, where_value: str = False, order_by: str = False, direction: str = False) -> list:
+        """
+        Generic get from table
+
+        Args:
+            table (str): Table name
+            where_field (str, optional): Field to select against. Defaults to False.
+            where_value (str, optional): Value to match. Defaults to False.
+            order_by (str, optional): Field to order by. Defaults to False.
+            direction (str, optional): Direction to sort by. Defaults to False.
+
+        Returns:
+            list: fetch all results
+        """
+        if not table:
+            raise ValueError("Table name not provided.")
+
+        qry = f"SELECT * FROM {table} "
+        if where_field:
+            qry += f"WHERE {where_field} = '{where_value}' "
+        if order_by and direction:
+            qry += f"ORDER BY {order_by} {direction}"
+
+        return self._run(qry, False)
+
+    def get_single(self, table: str, where_field: str = False, where_value: str = False) -> dict:
+        """
+        Get a single row from given tabe
+
+        Args:
+            table (str): Table name
+            where_field (str, optional): Field to select against. Defaults to False.
+            where_value (str, optional): Value to match. Defaults to False.
+
+        Returns:
+            dict: Single table row
+        """
+        if not table:
+            raise ValueError("Table name not provided.")
+
+        qry = f"SELECT * FROM {table} "
+        if where_field:
+            qry += f"WHERE {where_field} = '{where_value}' "
+
+        qry += " LIMIT 1"
+        return self._run(qry)
+
+    def update_match(self, team_a: str, team_b: str, date: str, data: dict) -> bool:
+        """
+        Update match in matches table
+
+        Returns:
+            bool: True = Row updated, False = No update
+        """
+        qry = f"SELECT * FROM matches WHERE team_a = '{team_a}' AND team_b = '{team_b}' AND date = '{date}'"
+        game = self._run(qry)
+        return self.update("matches", data, "id", game["id"])
+
+    def clear_table(self, table: str) -> None:
+        """
+        Empty all rows from a given table
+
+        Args:
+            table (str): Table name
+        """
+        self.delete(table, 1, 1)
+        self.conn.commit()
+
+    def create_table_from_list(self, table_name: str, col_names: list):
+        """Create all the coloumns from a given list in a new table"""
+        cols = " FLOAT, ".join(col_names)
+        qry = f"CREATE TABLE IF NOT EXISTS {table_name} ({cols} float)"
+        # print(qry)
+        run = self.cur.execute(qry)
+        self.conn.commit()
+
+    def delete(self, table: str, id_field: str = "id", id: int = 0) -> None:
+        """
+        Generic delete from table
+
+        Args:
+            table (str): Table name
+            id_field (str): Table id_field to match id. Defaults to "id".
+            id (int): Row Id value
+        """
+
+        if not table:
+            raise ValueError("Table name not provided.")
+
+        self.conn.execute(f"DELETE FROM {table} WHERE {id_field} = {id}")
+        self.conn.commit()
+
+    def _run(self, qry: str, single: bool = True):
+        run = self.cur.execute(qry)
+        return run.fetchone() if single else run.fetchall()
+
+
+if __name__ == "__main__":
+    pass

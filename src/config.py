@@ -1,7 +1,13 @@
 
 
-SUITS = ["s", "c", "h", "d"]
-CARDS = "AKQJT98765432"
+DATABASE = "./../poker.db"
+
+PRECISION = 2
+
+SUITS_INDEX = {"s": 0, "c": 1, "h": 2, "d": 3}
+SUITS_SINGLE = ("s", "c", "h", "d")
+
+CARDS_STR = "AKQJT98765432"
 
 HAND_RANKINGS = ("High Card", "Pair", "Two Pair", "Three of a Kind",
                  "Straight", "Flush", "Full House", "Four of a Kind",
