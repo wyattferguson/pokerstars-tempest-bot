@@ -1,6 +1,6 @@
 from config import *
-from holdem_calc import Holdem
-import time
+
+from montecarlo_model import MonteCarlo
 
 
 def run():
@@ -17,7 +17,7 @@ if __name__ == "__main__":
     hand = ["8s", "7s", "?", "?"]
     verbose = True
 
-    holdem = Holdem(board, exact_precision, interations, hand, verbose)
+    holdem = MonteCarlo(board, exact_precision, interations, hand, verbose)
     #   Tie, Win, Loss
     #  [0.08, 0.48, 0.43]
     print(holdem.simulate())

@@ -1,19 +1,20 @@
-from treys import Card, Evaluator
+from config import *
+import treys
 
 if __name__ == "__main__":
     board = [
-        Card.new('Ah'),
-        Card.new('Kd'),
-        Card.new('Jc')
+        treys.Card.new('Ah'),
+        treys.Card.new('Kd'),
+        treys.Card.new('Jc')
     ]
     player_hand = [
-        Card.new('Qs'),
-        Card.new('Th')
+        treys.Card.new('Qs'),
+        treys.Card.new('Th')
     ]
 
-    Card.print_pretty_cards(board + player_hand)
+    treys.Card.print_pretty_cards(board + player_hand)
 
-    evaluator = Evaluator()
+    evaluator = treys.Evaluator()
     player_score = evaluator.evaluate(board, player_hand)
     player_class = evaluator.get_rank_class(player_score)
 
