@@ -1,6 +1,6 @@
 from config import *
 
-from montecarlo_model import MonteCarlo
+from montecarlo import MonteCarlo
 
 
 def run():

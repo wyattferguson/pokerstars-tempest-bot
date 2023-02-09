@@ -1,41 +1,130 @@
 from config import *
-from montecarlo_model import MonteCarlo
+from montecarlo import MonteCarlo
 from database import DB
+import random
+import treys
+import eval7
+import pprint
 
-db = DB()
 
+class Generator():
+    def __init__(self, test: bool = True, verbose: bool = False,
+                 board: list[str] = [], interations: int = 1000) -> None:
+        self.db = DB()
+        self.test = test
+        self.verbose = verbose
+        self.board = board
+        self.interations = interations
 
-def monte_pairs():
-    start = time.time()
-    # board = ["As", "Ks", "Jd"]
-    board = None
-    exact_precision = False
-    interations = 1000
-    verbose = False
+    def run(self, model: str = False):
+        if not model:
+            print("#### Error: No Model Given ####")
+            exit()
 
-    sub_deck = DECK.copy()
+        start = time.time()
+        if model == "monte":
+            gen_model = self.monte_pairs
+        elif model == "rank":
+            gen_model = self.hand_rank
+        elif model == "eval7":
+            gen_model = self.eval_seven
 
-    for c1 in DECK:
-        sub_deck.pop(0)
-        for c2 in sub_deck:
-            hand = [c1, c2] + ["?", "?"]
-            model = MonteCarlo(board, exact_precision, interations, hand, verbose)
-            #   Tie, Win, Loss
-            #  [0.08, 0.48, 0.43]
-            results = model.simulate()
-            print(c1, c2, results)
+        sub_deck = DECK.copy()
+        for card1 in DECK:
+            sub_deck.pop(0)
+            for card2 in sub_deck:
+                gen_model(card1, card2)
 
+        print("Time elapsed(seconds): ", round(time.time() - start, 3))
+
+    def get_random_hand(self, size: int = 2):
+        return random.sample(DECK, size)
+
+    def get_random_board(self, board_size: int = 3):
+        return self.get_random_hand(board_size)
+
+    def eval_seven(self, card1: str = "", card2: str = ""):
+        # deck = eval7.Deck()
+        # deck.shuffle()
+        # hand = deck.deal(2)
+        # card1 = "4s"
+        # card2 = "Qh"
+        hand = [eval7.Card(card1), eval7.Card(card2)]
+
+        score = eval7.evaluate(hand)
+        if self.verbose:
+            print(card1, card2, score)
+
+        if not self.test:
+            self.db.update_hand_score(card1, card2, score)
+
+    def hand_rank(self, card1: str = "", card2: str = ""):
+        hand = [
+            treys.Card.new(card1),
+            treys.Card.new(card2)
+        ]
+
+        evaluator = treys.Evaluator()
+
+        sub_deck1 = DECK.copy()
+        for c1 in DECK:
+            sub_deck1.pop(0)
+            sub_deck2 = sub_deck1.copy()
+            for c2 in sub_deck1:
+                sub_deck2.pop(0)
+                for c3 in sub_deck2:
+                    if not bool(set([c1, c2, c3]) & set([card1, card2])):
+                        board = [
+                            treys.Card.new(c1),
+                            treys.Card.new(c2),
+                            treys.Card.new(c3)
+                        ]
+
+                        hand_score = evaluator.evaluate(board, hand)
+                        hand_class = evaluator.get_rank_class(hand_score)
+
+                        if self.verbose:
+                            print(f"({card1} {card2} | {c1}{c2}{c3}) {hand_score} ({evaluator.class_to_string(hand_class)})")
+
+                        if not self.test:
+                            row = {
+                                "card1": card1,
+                                "card2": card2,
+                                "board": f"{c1}{c2}{c3}",
+                                "rank": hand_score,
+                                "class": hand_class
+                            }
+
+                            self.db.insert("hand_ranks", row)
+
+    def monte_pairs(self, card1: str = "", card2: str = ""):
+        # board = ["As", "Ks", "Jd"]
+        exact_precision = False
+
+        hand = [card1, card2] + ["?", "?"]
+        monte = MonteCarlo(self.board, exact_precision, self.interations, hand, self.verbose)
+
+        #   Tie, Win, Loss
+        #  [0.08, 0.48, 0.43]
+        results = monte.simulate()
+
+        if self.verbose:
+            print(card1, card2, results)
+
+        if not self.test:
             row = {
-                "card1": c1,
-                "card2": c2,
+                "card1": card1,
+                "card2": card2,
                 "win": results[1],
                 "tie": results[0],
                 "loss": results[2],
             }
-            db.insert("hands", row)
 
-    print("Time elapsed(seconds): ", round(time.time() - start, 3))
+            self.db.insert("hands", row)
 
 
 if __name__ == "__main__":
-    monte_pairs()
+    gen = Generator(test=False, verbose=True)
+    # print(gen.get_random_hand())
+    print(gen.run(model="eval7"))
+    # gen.eval_seven()

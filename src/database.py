@@ -18,7 +18,7 @@ class DB:
         except Error as e:
             raise RuntimeError(f"Could not connect to Database: {e}")
 
-    def update(self, table: str = "matches", data: dict = {}, id_field: str = "id", id_value: any = 0) -> bool:
+    def update(self, table: str = "hands", data: dict = {}, id_field: str = "id", id_value: any = 0) -> bool:
         """
         Generic update function
 
@@ -85,9 +85,8 @@ class DB:
         qry = f"SELECT * FROM features WHERE abs_val > {min_val} AND role = '{role}' ORDER BY abs_val ASC"
         return self._run(qry, False)
 
-    def distinct(
-        self, table: str, select: str, where_field: str = False, where_value: str = False, order_by: str = False, direction: str = False
-    ) -> list:
+    def distinct(self, table: str, select: str, where_field: str = False,
+                 where_value: str = False, order_by: str = False, direction: str = False) -> list:
         """Get only unique results for a given field"""
         if not table:
             raise ValueError("Table name not provided.")
@@ -103,15 +102,8 @@ class DB:
 
         return self._run(qry, False)
 
-    def get_match_side(self, game_id, side, date):
-        qry = f"SELECT * FROM team_matches WHERE game_id = '{game_id}' AND side = {side} AND date = '{date}'"
-        return self._run(qry)
-
-    def get_matches_for_pairs(self):
-        qry = f"SELECT * FROM team_matches WHERE side = 1 AND scraped = 0"
-        return self._run(qry, False)
-
-    def get(self, table: str, where_field: str = False, where_value: str = False, order_by: str = False, direction: str = False) -> list:
+    def get(self, table: str, where_field: str = False, where_value: str = False,
+            order_by: str = False, direction: str = False) -> list:
         """
         Generic get from table
 
@@ -158,16 +150,11 @@ class DB:
         qry += " LIMIT 1"
         return self._run(qry)
 
-    def update_match(self, team_a: str, team_b: str, date: str, data: dict) -> bool:
-        """
-        Update match in matches table
-
-        Returns:
-            bool: True = Row updated, False = No update
-        """
-        qry = f"SELECT * FROM matches WHERE team_a = '{team_a}' AND team_b = '{team_b}' AND date = '{date}'"
-        game = self._run(qry)
-        return self.update("matches", data, "id", game["id"])
+    def update_hand_score(self, card1: str, card2: str, score: int) -> bool:
+        qry = f"UPDATE hands SET score = {score} WHERE card1 = '{card1}' AND card2 = '{card2}'"
+        self.cur.execute(qry)
+        self.conn.commit()
+        return True if self.cur.rowcount > 0 else False
 
     def clear_table(self, table: str) -> None:
         """
