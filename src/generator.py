@@ -1,7 +1,6 @@
 from config import *
 from montecarlo import MonteCarlo
 from database import DB
-import random
 import treys
 import eval7
 import pandas as pd
