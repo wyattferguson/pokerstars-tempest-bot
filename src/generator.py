@@ -44,11 +44,6 @@ class Generator():
         return self.get_random_hand(board_size)
 
     def eval_seven(self, card1: str = "", card2: str = ""):
-        # deck = eval7.Deck()
-        # deck.shuffle()
-        # hand = deck.deal(2)
-        # card1 = "4s"
-        # card2 = "Qh"
         hand = [eval7.Card(card1), eval7.Card(card2)]
 
         score = eval7.evaluate(hand)
@@ -124,7 +119,9 @@ class Generator():
 
 
 if __name__ == "__main__":
-    gen = Generator(test=False, verbose=True)
+    gen = Generator(test=True, verbose=True)
     # print(gen.get_random_hand())
+    # print(gen.run(model="monte"))
+    # print(gen.run(model="rank"))
     print(gen.run(model="eval7"))
     # gen.eval_seven()

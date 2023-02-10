@@ -1,24 +1,37 @@
 from config import *
 
-from montecarlo import MonteCarlo
+from pyautogui import hotkey
 
 
-def run():
-    # print(holdem_calc.calculate(["As", "Ks", "Jd"], True, 1, None, ["8s", "7s", "Qc", "Th"], False))
-    pass
+class Game():
+    def __init__(self, testing: bool = True) -> None:
+        self.testing = testing
+        self.pot = 0
+        self.wallet = 0
+        self.bb = 0
+        self.sb = 0
+        self.hand = []
+
+    def next_move(self):
+        pass
+
+    def random_delay(self):
+        delay = round(random.uniform(DELAY_LOWER, DELAY_UPPER), 1)
+        print(f"Delay -> {delay}s")
+        if not self.testing:
+            time.sleep(delay)
+
+    def all_in(self):
+        print("Move -> Push")
+        if not self.testing:
+            hotkey('ctrl', 'e')
+
+    def fold(self):
+        print("Move -> Fold")
+        if not self.testing:
+            hotkey('ctrl', 'f')
 
 
 if __name__ == "__main__":
-    start = time.time()
-    # board = ["As", "Ks", "Jd"]
-    board = None
-    exact_precision = False
-    interations = 5
-    hand = ["8s", "7s", "?", "?"]
-    verbose = True
-
-    holdem = MonteCarlo(board, exact_precision, interations, hand, verbose)
-    #   Tie, Win, Loss
-    #  [0.08, 0.48, 0.43]
-    print(holdem.simulate())
-    print("Time elapsed(seconds): ", round(time.time() - start, 3))
+    game = Game()
+    game.random_delay()
