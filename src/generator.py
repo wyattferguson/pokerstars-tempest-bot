@@ -4,7 +4,7 @@ from database import DB
 import random
 import treys
 import eval7
-import pprint
+import pandas as pd
 
 
 class Generator():
@@ -42,6 +42,24 @@ class Generator():
 
     def get_random_board(self, board_size: int = 3):
         return self.get_random_hand(board_size)
+
+    def import_nash_tables(self):
+        for status in ["call", "push"]:
+            nash_data = pd.read_csv(f"C:\\Code\\poker\\src\\nash_{status}.csv", header=0, squeeze=True).to_dict()
+            # write coloumn names to table
+            # for key, value in nash_data.items():
+            #     col = key.strip()
+            #     self.db.add_table_column("nash", col, "REAL")
+
+            cnt = 0
+            while True:
+                row = {'status': status}
+                for key, value in nash_data.items():
+                    col = key.strip()
+                    row[col] = value[cnt]
+                if cnt > 0:
+                    self.db.insert("nash", row)
+                cnt += 1
 
     def eval_seven(self, card1: str = "", card2: str = ""):
         hand = [eval7.Card(card1), eval7.Card(card2)]
@@ -123,5 +141,6 @@ if __name__ == "__main__":
     # print(gen.get_random_hand())
     # print(gen.run(model="monte"))
     # print(gen.run(model="rank"))
-    print(gen.run(model="eval7"))
+    # print(gen.run(model="eval7"))
+    # gen.import_nash_tables()
     # gen.eval_seven()

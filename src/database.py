@@ -48,11 +48,11 @@ class DB:
             table (str): Table name.
             values (dict): Dictionary of key->value data
         """
-        keys = ','.join(values.keys())
+        keys = '","'.join(values.keys())
         marks = ','.join(list('?' * len(values)))
         values = tuple(values.values())
         self.conn.execute('INSERT INTO ' + table +
-                          ' (' + keys + ') VALUES (' + marks + ')', values)
+                          ' ("' + keys + '") VALUES (' + marks + ')', values)
         self.conn.commit()
 
     def match_exists(self, name: str, game_id: str, role: str = "player") -> bool:
@@ -164,6 +164,10 @@ class DB:
             table (str): Table name
         """
         self.delete(table, 1, 1)
+        self.conn.commit()
+
+    def add_table_column(self, table_name: str, col_name: str, col_type: str = 'float'):
+        self.cur.execute(f"ALTER TABLE {table_name} ADD COLUMN '{col_name}' '{col_type}'")
         self.conn.commit()
 
     def create_table_from_list(self, table_name: str, col_names: list):
