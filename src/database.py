@@ -13,10 +13,16 @@ class DB:
         try:
             db_path = Path(__file__).parent / DATABASE
             self.conn = sqlite3.connect(db_path)
-            self.conn.row_factory = sqlite3.Row
+            self.conn.row_factory = self.dict_factory
             self.cur = self.conn.cursor()
         except Error as e:
             raise RuntimeError(f"Could not connect to Database: {e}")
+
+    def dict_factory(self, cursor, row):
+        d = {}
+        for idx, col in enumerate(cursor.description):
+            d[col[0]] = row[idx]
+        return d
 
     def update(self, table: str = "hands", data: dict = {}, id_field: str = "id", id_value: any = 0) -> bool:
         """
@@ -127,6 +133,17 @@ class DB:
             qry += f"ORDER BY {order_by} {direction}"
 
         return self._run(qry, False)
+
+    def get_hand(self, hand: list[str]):
+        qry = f"SELECT * FROM hands WHERE (card1 = '{hand[0]}' AND card2 = '{hand[1]}') OR (card1 = '{hand[1]}' AND card2 = '{hand[0]}') LIMIT 1"
+        return self._run(qry)
+
+    def get_nash(self, stack: float, status: str, hand: list[str]):
+        suited = "" if hand[0][1] == hand[1][1] else "o"
+        row_name = f"{hand[0][0]}{hand[1][0]}{suited}"
+        qry = f"SELECT id, status, stack, '{row_name}' FROM nash WHERE status = '{status}' AND stack = '{stack}' LIMIT 1"
+        run = self.cur.execute(qry)
+        return run.fetchone()
 
     def get_single(self, table: str, where_field: str = False, where_value: str = False) -> dict:
         """
