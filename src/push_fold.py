@@ -5,6 +5,12 @@ import poker_hand
 from config import *
 from player import *
 
+'''
+FIXES
+- If all players fold, last player wins
+- make sure winners have not folded
+'''
+
 
 class PushFold():
     def __init__(self, players: list, small_blind: int = 5):
@@ -35,9 +41,8 @@ class PushFold():
 
             for winner in winners:
                 player = self.players[winner[0]]
-                player.win(player_payout)
-
                 print(f"Winner -> {player.player_name} | {winner[1]}")
+                player.win(player_payout)
 
     def deal_cards(self):
         self.blinds = [self.blinds[-1]] + self.blinds[:-1]  # cycle blinds

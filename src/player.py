@@ -38,7 +38,7 @@ class Player():
 
     def win(self, pot: int = 0):
         self.wallet += pot
-        print(f"{self.player_name} Wallet -> {self.wallet}")
+        print(f"{self.player_name} Wallet -> {round(self.wallet,2)}")
 
     def push(self) -> int:
         print(f"{self.player_name} Move -> All In ({self.bet})")
@@ -80,43 +80,6 @@ class Monte(Player):
         super().__init__(player_name)
 
     def move(self):
-        pass
-
-
-class Tempest():
-    def __init__(self, players: int = 2) -> None:
-        self.num_players = players
-        # self.players = [Nash(), Chaos(), Monte()]
-        self.players = [Chaos("A1"), Chaos("B2"), Chaos("C3")]
-        self.small_blind = 5
-        self.big_blind = 2 * self.small_blind
-        self.giant_blind = 2 * self.big_blind
-        self.blinds = [self.small_blind, self.big_blind, self.giant_blind]
-        self.deck = []
-        self.pot = 0
-
-    def shuffle_deck(self) -> None:
-        self.deck = DECK.copy
-        random.shuffle(self.deck)
-
-    def deal(self) -> None:
-        self.pot = 0
-        self.shuffle_deck()
-        for i, p in enumerate(self.players):
-            if p.is_playing():
-                p.new_hand(self.deal_hand(), self.blinds[i])
-                self.pot += p.ante_up()
-
-    def deal_hand(self) -> list[str]:
-        return [self.deck.pop(0), self.deck.pop(0)]
-
-    def deal_board(self, cards: int = 5) -> list[str]:
-        return self.deck[0:cards]
-
-    def run(self) -> None:
-        pass
-
-    def determine_winner(self) -> None:
         pass
 
 
