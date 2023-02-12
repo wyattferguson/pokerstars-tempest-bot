@@ -24,16 +24,20 @@ class PushFold():
             print(f"Game #{n+1}")
             self.deal_cards()
             self.player_actions()
+            self.board_to_str()
+
+            print(f"Game -> {self.pot} Pot")
             winners = self.determine_winners()
 
             pot_divide = len(winners)
             player_payout = round(self.pot / pot_divide, 2)
+            print(f"Game -> {pot_divide} Winners | {player_payout} Payout")
+
             for winner in winners:
                 player = self.players[winner[0]]
                 player.win(player_payout)
 
-                print("Winning Hand: ", winner[1])
-                print("Winner: ", player)
+                print(f"Winner -> {player.player_name} | {winner[1]}")
 
     def deal_cards(self):
         self.blinds = [self.blinds[-1]] + self.blinds[:-1]  # cycle blinds
@@ -45,13 +49,14 @@ class PushFold():
         for i, p in enumerate(self.players):
             p.new_hand([dealt_cards.pop(n) for n in range(2)], self.blinds[i])
             p.hand.sort()
+            p.format_cards()
 
         self.board.extend(dealt_cards)
         self.board.sort()
 
     def player_actions(self):
         for player in self.players:
-            player.move()
+            self.pot += player.move()
 
     def payout_winners(self):
         pass
@@ -62,7 +67,7 @@ class PushFold():
     def determine_winners(self):
         highest_hands = []
         for player in self.players:
-            if player.is_playing():
+            if player.is_playing:
                 card_pool = self.board.copy()
                 card_pool.extend(player.hand)
                 card_combinations = [list(cards)
@@ -77,10 +82,15 @@ class PushFold():
             winners.append((idx, highest_hands.pop(idx)))
         return winners
 
-    def __str__(self):
+    def board_to_str(self):
         board = ""
         for c in self.board:
             board += str(FACE_CARDS.get(c.rank, c.rank)) + c.suit + " "
+        print(f"Board -> {board}")
+        return board
+
+    def __str__(self):
+        board = self.board_to_str()
         rv = "-" * 40 + f"\n\nCommunity Cards:\n{board}\n" + "*" * 20 + "\n"
         for ct, player in enumerate(self.players):
             player_cards = ""

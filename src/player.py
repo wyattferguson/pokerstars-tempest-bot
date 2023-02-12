@@ -25,17 +25,27 @@ class Player():
         self.playing = True if self.wallet > 0 else False
         return self.playing
 
+    def format_cards(self):
+        tmp = []
+        for c in self.hand:
+            tmp.append(str(FACE_CARDS.get(c.rank, c.rank)) + c.suit)
+        print(f"{self.player_name} Hand -> {tmp}")
+        return tmp
+
     def ante_up(self) -> int:
         self.bet -= self.blind
         return self.blind
 
     def win(self, pot: int = 0):
         self.wallet += pot
+        print(f"{self.player_name} Wallet -> {self.wallet}")
 
     def push(self) -> int:
+        print(f"{self.player_name} Move -> All In ({self.bet})")
         return self.bet
 
     def fold(self) -> int:
+        print(f"{self.player_name} Move -> Fold")
         self.playing = False
         return 0
 
