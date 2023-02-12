@@ -15,7 +15,7 @@ class Player():
         self.ties = 0
         self.losses = 0
 
-    def new_hand(self, hand: list[str], blind: int = 0):
+    def new_hand(self, hand: list, blind: int = 0):
         self.bet = self.max_bet if self.wallet > self.max_bet else self.wallet
         self.wallet -= self.bet
         self.hand = hand
@@ -23,9 +23,6 @@ class Player():
 
     def is_playing(self) -> bool:
         self.playing = True if self.wallet > 0 else False
-        if not self.playing:
-            print(f"{self.player_name} is BROKE")
-            print(self.__str__())
         return self.playing
 
     def ante_up(self) -> int:
@@ -43,7 +40,7 @@ class Player():
         return 0
 
     def __str__(self) -> str:
-        return (f"{self.player_name} | Wallet: {self.wallet} | Hands: {self.hands_played} | W: {self.wins} L: {self.losses} T: {self.ties}")
+        return (f"{self.player_name} | H: {self.hand} | WLT: {self.wallet} | GMS: {self.hands_played} | W: {self.wins} L: {self.losses} T: {self.ties}")
 
 
 class Chaos(Player):
