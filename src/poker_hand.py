@@ -23,6 +23,18 @@ class Hand:
     def __gt__(self, x_hand):
         return self._comp_hand(x_hand) == 'GT'
 
+    def list_format(self):
+        tmp = []
+        for c in self.hand:
+            tmp.append(str(FACE_CARDS.get(c.rank, c.rank)) + c.suit)
+        return tmp
+
+    def str_format(self):
+        repr_str = ''
+        for c in self.hand:
+            repr_str += str(FACE_CARDS.get(c.rank, c.rank)) + c.suit
+        return repr_str
+
     def __repr__(self):
         repr_str = ''
         for n in range(0, 5):

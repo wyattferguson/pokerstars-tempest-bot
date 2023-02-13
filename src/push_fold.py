@@ -7,8 +7,7 @@ from player import *
 
 '''
 FIXES
-- If all players fold, last player wins
-- make sure winners have not folded
+- Player must check if broke before receiving cards
 '''
 
 
@@ -27,93 +26,88 @@ class PushFold():
 
     def play(self, games: int = 1):
         for n in range(games):
-            print(f"Game #{n+1}")
+            print(f"\n########## Game #{n+1} ##########")
             self.deal_cards()
+            print(f"Pot -> {self.pot}")
             self.player_actions()
-            self.board_to_str()
+            print(self)
 
-            print(f"Game -> {self.pot} Pot")
             winners = self.determine_winners()
-
-            pot_divide = len(winners)
-            player_payout = round(self.pot / pot_divide, 2)
-            print(f"Game -> {pot_divide} Winners | {player_payout} Payout")
-
-            for winner in winners:
-                player = self.players[winner[0]]
-                print(f"Winner -> {player.player_name} | {winner[1]}")
-                player.win(player_payout)
+            self.payout_winners(winners)
 
     def deal_cards(self):
-        self.blinds = [self.blinds[-1]] + self.blinds[:-1]  # cycle blinds
-
+        # clear board and shuffle deck
+        self.pot = 0
         self.board.clear()
         shuffle(self.deck)
 
-        dealt_cards = sample(self.deck, (2 * self.player_count) + 5)
-        for i, p in enumerate(self.players):
-            p.new_hand([dealt_cards.pop(n) for n in range(2)], self.blinds[i])
-            p.hand.sort()
-            p.format_cards()
+        # shift blinds
+        self.players = [self.players[-1]] + self.players[:-1]
 
+        # deal player cards
+        dealt_cards = sample(self.deck, (2 * self.player_count) + 5)
+        is_small_blind = True
+        for i, p in enumerate(self.players):
+            p.new_hand([dealt_cards.pop(n) for n in range(2)], self.blinds[i], is_small_blind)
+            p.hand.sort()
+            is_small_blind = False
+            self.pot += p.blind
+
+        # deal board cards
         self.board.extend(dealt_cards)
         self.board.sort()
 
     def player_actions(self):
-        for player in self.players:
-            self.pot += player.move()
+        first_call = True
+        last_player = False
+        for i, player in enumerate(self.players):
+            if first_call and i == self.player_count - 1:
+                last_player = True
 
-    def payout_winners(self):
-        pass
+            action = player.move(first_call, last_player)
+            if action > 0:
+                first_call = False
+            print(player)
+            self.pot += action
 
-    def get_antes(self):
-        pass
+    def payout_winners(self, winners):
+        pot_divide = len(winners)
+        player_payout = round(self.pot / pot_divide, 2)
+        print(f"Game -> {pot_divide} Winners | {player_payout} Payout")
+
+        for winner in winners:
+            winner.win(player_payout)
 
     def determine_winners(self):
         highest_hands = []
         for player in self.players:
-            if player.is_playing:
+            if player.playing:
                 card_pool = self.board.copy()
                 card_pool.extend(player.hand)
                 card_combinations = [list(cards)
                                      for cards in combinations(card_pool, 5)]
-                highest_hands.append(max([poker_hand.Hand(h)
-                                          for h in card_combinations]))
-        winning_hand = max(highest_hands)
+                max_hand = max([poker_hand.Hand(h)
+                                for h in card_combinations])
+                player.hand = max_hand.list_format()
+                highest_hands.append(max_hand)
 
+        winning_hand = max(highest_hands)
         winners = []
-        for player in range(highest_hands.count(winning_hand)):
-            idx = highest_hands.index(winning_hand)
-            winners.append((idx, highest_hands.pop(idx)))
+        for player in self.players:
+            if player.hand == winning_hand.list_format():
+                winners.append(player)
         return winners
 
-    def board_to_str(self):
+    def __str__(self):
         board = ""
         for c in self.board:
             board += str(FACE_CARDS.get(c.rank, c.rank)) + c.suit + " "
-        print(f"Board -> {board}")
-        return board
-
-    def __str__(self):
-        board = self.board_to_str()
-        rv = "-" * 40 + f"\n\nCommunity Cards:\n{board}\n" + "*" * 20 + "\n"
-        for ct, player in enumerate(self.players):
-            player_cards = ""
-            for c in player.hand:
-                player_cards += str(FACE_CARDS.get(c.rank,
-                                    c.rank)) + c.suit + " "
-            rv += f"Player {str(ct)}: {player_cards}\n"
-        winners = self.determine_winners()
-        rv += "*" * 20 + "\n"
-        for winner in winners:
-            rv += f"Player {str(winner[0])} wins: {str(winner[1])}\n"
-        rv += "\n" + "-" * 40
-        return rv
+        return f"Board -> {board}| {round(self.pot,2)} Pot"
 
 
 if __name__ == "__main__":
-    games = 1
-    players = [Chaos("P1"), Chaos("P2"), Chaos("P3")]
+    games = 3
+    players = [Chaos("GG"), Chaos("XX"), Chaos("BB")]
     small_blind = 5
     th = PushFold(players, small_blind)
     th.play(games)

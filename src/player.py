@@ -2,64 +2,105 @@ from config import *
 
 
 class Player():
-    def __init__(self, player_name: str) -> None:
-        self.wallet = 100000
+    def __init__(self, player_name: str = "", max_bet: int = 200, wallet: int = 10000) -> None:
+        self.start_wallet = wallet
+        self.wallet = wallet
         self.player_name = player_name
         self.playing = True
-        self.max_bet = 200
+        self.status = "waiting"
+        self.max_bet = max_bet
         self.bet = 0
         self.blind = 0
+        self.is_small_blind = False
         self.hand = []
         self.wins = 0
-        self.hands_played = 0
-        self.ties = 0
-        self.losses = 0
+        self.buy_ins = 1
+        self.total_games = 0
+        self.total_hands = 0
+        self.folds = 0
 
-    def new_hand(self, hand: list, blind: int = 0):
+    def new_hand(self, hand: list, blind: int = 0, is_small_blind: bool = False):
+        self.status = "new hand"
+        self.is_small_blind = is_small_blind
         self.bet = self.max_bet if self.wallet > self.max_bet else self.wallet
-        self.wallet -= self.bet
         self.hand = hand
         self.blind = blind
+        self.wallet -= self.blind
+        self.bet = 0
+        self.total_games += 1
+        print(self)
 
     def is_playing(self) -> bool:
-        self.playing = True if self.wallet > 0 else False
+        if self.wallet <= 0 and self.playing:
+            self.status = "broke"
+            self.playing = False
+
         return self.playing
 
-    def format_cards(self):
+    def str_format(self):
+        repr_str = ''
+        for c in self.hand:
+            repr_str += str(FACE_CARDS.get(c.rank, c.rank)) + c.suit
+        return repr_str
+
+    def list_format(self):
         tmp = []
         for c in self.hand:
             tmp.append(str(FACE_CARDS.get(c.rank, c.rank)) + c.suit)
-        print(f"{self.player_name} Hand -> {tmp}")
         return tmp
 
-    def ante_up(self) -> int:
-        self.bet -= self.blind
-        return self.blind
-
     def win(self, pot: int = 0):
+        self.status = "winner"
+        self.wins += 1
+        self.blind = 0
+        self.bet = 0
+        print(f"{self} | +{pot} | {self.wallet + pot}")
         self.wallet += pot
-        print(f"{self.player_name} Wallet -> {round(self.wallet,2)}")
 
     def push(self) -> int:
-        print(f"{self.player_name} Move -> All In ({self.bet})")
+        self.playing = True
+        self.status = "push"
+        self.total_hands += 1
+        self.bet = self.max_bet - self.blind
+        self.wallet -= self.bet
         return self.bet
 
     def fold(self) -> int:
-        print(f"{self.player_name} Move -> Fold")
+        self.status = "fold"
+        self.folds += 1
         self.playing = False
         return 0
 
+    def stats(self) -> None:
+        print(f"\n########## Player {self.player_name} Stats ##########")
+        print(f"Total Games: {self.total_games}")
+        print(f"Stats(W/L/F/H): {self.wins} / {self.total_hands - self.wins} / {self.folds} / {self.total_hands}")
+        wp = round(self.wins / self.total_hands, 4) * 100
+        lp = 100 - wp
+        hp = round(self.total_hands / self.total_games, 4) * 100
+        print(f"Stats % (W/L/T/H): {wp} / {lp} / {hp}")
+        print(f"Wallet: {self.wallet}")
+        print(f"Buy Ins: {self.buy_ins}")
+        profit = self.start_wallet - self.wallet
+        print(f"Profit: {profit}")
+        pph = round(profit / self.total_hands, 4)
+        print(f"Pofit Per Hand: {pph}")
+
     def __str__(self) -> str:
-        return (f"{self.player_name} | H: {self.hand} | WLT: {self.wallet} | GMS: {self.hands_played} | W: {self.wins} L: {self.losses} T: {self.ties}")
+        return (f"{self.player_name} -> {self.status} | {self.hand} ({self.bet} | {self.blind} | {round(self.wallet,2)})")
 
 
 class Chaos(Player):
     """ Random Push/Fold """
 
     def __init__(self, player_name: str = "Chaos"):
-        super().__init__(player_name)
+        super().__init__("C-" + player_name)
 
-    def move(self) -> int:
+    def move(self, call: bool = False, last_player: bool = False) -> int:
+        if last_player:
+            self.playing = True
+            self.status = "auto winner"
+            return 0
         return self.push() if bool(random.getrandbits(1)) else self.fold()
 
 
@@ -67,9 +108,9 @@ class Nash(Player):
     """ Nash Tables """
 
     def __init__(self, player_name: str = "Nash"):
-        super().__init__(player_name)
+        super().__init__("N-" + player_name)
 
-    def move(self):
+    def move(self, call: bool = False):
         pass
 
 
@@ -77,9 +118,9 @@ class Monte(Player):
     """ MonteCarlo Hand Percentages """
 
     def __init__(self, player_name: str = "Monte"):
-        super().__init__(player_name)
+        super().__init__("M-" + player_name)
 
-    def move(self):
+    def move(self, call: bool = False):
         pass
 
 
