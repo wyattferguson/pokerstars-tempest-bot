@@ -4,6 +4,8 @@ from sqlite3 import Error
 
 from config import *
 
+DATABASE = "../poker.db"
+
 
 class DB:
     """

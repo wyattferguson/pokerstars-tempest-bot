@@ -1,3 +1,10 @@
+'''
+TODO:
+- Fix Nash stack calculation
+- Add proper decision tree for nash
+- Add MonteCarlo look up + Decision tree
+
+'''
 from config import *
 
 
@@ -99,7 +106,7 @@ class Nash(Player):
     def move(self, call: bool = False) -> int:
         status = 'call' if call else 'push'
 
-        if type(self.hand) != list:
+        if not isinstance(self.hand, list):
             hand = []
             for c in self.hand:
                 hand.append(str(FACE_CARDS.get(c.rank, c.rank)) + c.suit)
@@ -109,14 +116,15 @@ class Nash(Player):
         # FIX THIS
         stack = 1.0
 
-        self.db.get_nash(stack: float, status, hand)
+        self.db.get_nash(stack, status, hand)
         return self.push() if bool(random.getrandbits(1)) else self.fold()
 
 
 class Monte(Player):
     """ MonteCarlo Hand Percentages """
 
-    def __init__(self, player_name: str = "Monte"):
+    def __init__(self, player_name: str = "Monte", min_push_score: float = 40):
+        self.min_push_score = min_push_score
         super().__init__("M-" + player_name)
 
     def move(self, call: bool = False):

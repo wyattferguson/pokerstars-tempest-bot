@@ -23,15 +23,6 @@ class Game():
         if not self.testing:
             time.sleep(delay)
 
-    def read_game_state(self):
-        pass
-
-    def read_blind(self):
-        pass
-
-    def read_hand(self):
-        pass
-
     def all_in(self):
         print("Move -> Push")
         if not self.testing:
