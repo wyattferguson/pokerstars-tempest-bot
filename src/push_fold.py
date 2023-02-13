@@ -59,14 +59,16 @@ class PushFold():
 
     def player_actions(self):
         first_call = True
-        last_player = False
+
         for i, player in enumerate(self.players):
             if first_call and i == self.player_count - 1:
-                last_player = True
-
-            action = player.move(first_call, last_player)
-            if action > 0:
-                first_call = False
+                player.playing = True
+                player.status = "auto winner"
+                action = 0
+            else:
+                action = player.move(first_call)
+                if action > 0:
+                    first_call = False
             print(player)
             self.pot += action
 

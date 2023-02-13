@@ -37,18 +37,6 @@ class Player():
 
         return self.playing
 
-    def str_format(self):
-        repr_str = ''
-        for c in self.hand:
-            repr_str += str(FACE_CARDS.get(c.rank, c.rank)) + c.suit
-        return repr_str
-
-    def list_format(self):
-        tmp = []
-        for c in self.hand:
-            tmp.append(str(FACE_CARDS.get(c.rank, c.rank)) + c.suit)
-        return tmp
-
     def win(self, pot: int = 0):
         self.status = "winner"
         self.wins += 1
@@ -96,11 +84,7 @@ class Chaos(Player):
     def __init__(self, player_name: str = "Chaos"):
         super().__init__("C-" + player_name)
 
-    def move(self, call: bool = False, last_player: bool = False) -> int:
-        if last_player:
-            self.playing = True
-            self.status = "auto winner"
-            return 0
+    def move(self, call: bool = False) -> int:
         return self.push() if bool(random.getrandbits(1)) else self.fold()
 
 
@@ -110,8 +94,8 @@ class Nash(Player):
     def __init__(self, player_name: str = "Nash"):
         super().__init__("N-" + player_name)
 
-    def move(self, call: bool = False):
-        pass
+    def move(self, call: bool = False) -> int:
+        return self.push() if bool(random.getrandbits(1)) else self.fold()
 
 
 class Monte(Player):
