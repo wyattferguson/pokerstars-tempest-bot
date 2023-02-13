@@ -93,8 +93,8 @@ class Chaos(Player):
 class Nash(Player):
     """ Nash Tables """
 
-    def __init__(self, player_name: str = "Nash"):
-        super().__init__("N-" + player_name)
+    def __init__(self, player_name: str = "Nash", max_bet: int = 200, wallet: int = 10000):
+        super().__init__("N-" + player_name, max_bet, wallet)
 
     def move(self, call: bool = False) -> int:
         status = 'call' if call else 'push'

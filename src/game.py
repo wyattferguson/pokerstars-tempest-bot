@@ -1,6 +1,9 @@
-from config import *
+import sys
 
 from pyautogui import hotkey
+
+from config import *
+from player import *
 
 
 class Game():
@@ -8,11 +11,10 @@ class Game():
         self.testing = testing
         self.pot = 0
         self.wallet = 0
-        self.bb = 0
-        self.sb = 0
+        self.blind = 0
         self.hand = []
 
-    def next_move(self):
+    def next_hand(self):
         pass
 
     def random_delay(self):
@@ -20,6 +22,15 @@ class Game():
         print(f"Delay -> {delay}s")
         if not self.testing:
             time.sleep(delay)
+
+    def read_game_state(self):
+        pass
+
+    def read_blind(self):
+        pass
+
+    def read_hand(self):
+        pass
 
     def all_in(self):
         print("Move -> Push")
@@ -33,5 +44,13 @@ class Game():
 
 
 if __name__ == "__main__":
+    '''
+    # py game.py 1000 5
+
+    wallet = int(sys.argv[1])
+    blind = int(sys.argv[2])
+
+    '''
+
     game = Game()
     game.random_delay()
