@@ -18,6 +18,7 @@ class Player():
         self.total_games = 0
         self.total_hands = 0
         self.folds = 0
+        self.db = DB()
 
     def new_hand(self, hand: list, blind: int = 0, is_small_blind: bool = False):
         self.status = "new hand"
@@ -62,7 +63,8 @@ class Player():
     def stats(self) -> None:
         print(f"\n########## Player {self.player_name} Stats ##########")
         print(f"Total Games: {self.total_games}")
-        print(f"Stats(W/L/F/H): {self.wins} / {self.total_hands - self.wins} / {self.folds} / {self.total_hands}")
+        print(
+            f"Stats(W/L/F/H): {self.wins} / {self.total_hands - self.wins} / {self.folds} / {self.total_hands}")
         wp = round(self.wins / self.total_hands, 4) * 100
         lp = 100 - wp
         hp = round(self.total_hands / self.total_games, 4) * 100
@@ -95,6 +97,19 @@ class Nash(Player):
         super().__init__("N-" + player_name)
 
     def move(self, call: bool = False) -> int:
+        status = 'call' if call else 'push'
+
+        if type(self.hand) != list:
+            hand = []
+            for c in self.hand:
+                hand.append(str(FACE_CARDS.get(c.rank, c.rank)) + c.suit)
+        else:
+            hand = self.hand
+
+        # FIX THIS
+        stack = 1.0
+
+        self.db.get_nash(stack: float, status, hand)
         return self.push() if bool(random.getrandbits(1)) else self.fold()
 
 

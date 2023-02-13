@@ -1,6 +1,7 @@
 import sqlite3
-from sqlite3 import Error
 from pathlib import Path
+from sqlite3 import Error
+
 from config import *
 
 
@@ -40,7 +41,8 @@ class DB:
             values += f"{val}," if isinstance(val, int) else f"'{val}',"
 
         where = f"{id_field} = "
-        where += f"{id_value}" if isinstance(id_value, int) else f"'{id_value}'"
+        where += f"{id_value}" if isinstance(id_value,
+                                             int) else f"'{id_value}'"
         qry = f"UPDATE {table} SET {values[:-1]} WHERE {where}"
         self.cur.execute(qry)
         self.conn.commit()
@@ -141,7 +143,7 @@ class DB:
     def get_nash(self, stack: float, status: str, hand: list[str]):
         suited = "" if hand[0][1] == hand[1][1] else "o"
         row_name = f"{hand[0][0]}{hand[1][0]}{suited}"
-        qry = f"SELECT id, status, stack, '{row_name}' FROM nash WHERE status = '{status}' AND stack = '{stack}' LIMIT 1"
+        qry = f"SELECT id, status, stack, '{row_name}' as score FROM nash WHERE status = '{status}' AND stack = '{stack}' LIMIT 1"
         run = self.cur.execute(qry)
         return run.fetchone()
 
@@ -184,7 +186,8 @@ class DB:
         self.conn.commit()
 
     def add_table_column(self, table_name: str, col_name: str, col_type: str = 'float'):
-        self.cur.execute(f"ALTER TABLE {table_name} ADD COLUMN '{col_name}' '{col_type}'")
+        self.cur.execute(
+            f"ALTER TABLE {table_name} ADD COLUMN '{col_name}' '{col_type}'")
         self.conn.commit()
 
     def create_table_from_list(self, table_name: str, col_names: list):
