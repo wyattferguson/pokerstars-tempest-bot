@@ -1,4 +1,11 @@
+""""
+- Finish card suit reader
+- Check all 5 other players for a "Cap" or "All-In", to set call variable
+- Add red check for your turn on the red buttons in the bottom right
+- setup poker key short cuts
+- Add read current wallet
 
+"""
 import re
 
 import cv2
