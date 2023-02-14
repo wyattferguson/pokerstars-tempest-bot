@@ -1,12 +1,14 @@
 
-from config import *
-import keyboard
-import cv2
-import mss
-from PIL import Image, ImageOps
 import re
+
+import cv2
+import keyboard
+import mss
 import numpy
 import pytesseract as ocr
+from PIL import Image, ImageOps
+
+from config import *
 
 ocr.pytesseract.tesseract_cmd = r'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
 
@@ -46,21 +48,32 @@ class Vision():
         #         print(f"NO CARD FOUND")
         #     # self.popup_image(gray_screen)
 
-        # if hand:
         for s in CARD_SUIT_LOCAIONS:
             screen_shot = self.screen_shot(s)
             self.popup_image(screen_shot)
 
-            # save matrix/array as image file
-            img_name = f"{random.randint(1,99999)}"
-            isWritten = cv2.imwrite(f"{IMG_PATH}\\suits\\{img_name}.png", screen_shot)
-
-            if isWritten:
-                print('Image is successfully saved as file.')
         return hand
 
+    def save_image(self, img):
+        # save matrix/array as image file
+        img_name = f"{random.randint(1,99999)}"
+        isWritten = cv2.imwrite(f"{IMG_PATH}\\suits\\{img_name}.png", img)
+
+        if isWritten:
+            print('Image is successfully saved as file.')
+
     def card_suit(self, card_idx: int) -> str:
-        pass
+        screen_shot = self.screen_shot(CARD_SUIT_LOCAIONS[card_idx])
+
+        card_suit_part = "c"
+        card_img = cv2.imread(
+            f"{IMG_PATH}\\suits\\{card_suit_part}{card_idx}.png")
+        card_sect = numpy.array(card_img)
+        scr_remove = card_sect[:, :, :3]
+
+        result = cv2.matchTemplate(
+            scr_remove, screen_shot, cv2.TM_CCOEFF_NORMED)
+        print(result)
 
     def pot(self) -> int:
         pot_screen = self.screen_shot(POT_LOCATION)
