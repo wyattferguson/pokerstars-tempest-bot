@@ -14,6 +14,8 @@ PRECISION = 3
 DELAY_UPPER = 6.2
 DELAY_LOWER = 0.4
 
+# TABLE POT
+
 POT_LOCATION = {
     'left': 580,
     'top': 280,
@@ -21,18 +23,13 @@ POT_LOCATION = {
     'height': 32
 }
 
-WALLET_LOCATION = {
-    'left': 600,
-    'top': 670,
-    'width': 150,
-    'height': 25
-}
+
+# YOUR CARDS
 
 CARD_OFFSET = 80
 CARD_SUIT_Y_OFFSET = 35
 CARD_SUIT_X_OFFSET = 5
 CARD_SUIT_SQR = 15
-
 
 CARD1_VALUE = {
     'left': 560,
@@ -65,8 +62,18 @@ CARD2_SUIT = {
 CARD_VALUE_LOCAIONS = [CARD1_VALUE, CARD2_VALUE]
 CARD_SUIT_LOCAIONS = [CARD1_SUIT]
 
+
+# ALL PLAYER WALLET BOXES / SEATS
+
 SEAT_WIDTH = 150
 SEAT_HEIGHT = 25
+
+WALLET_LOCATION = {
+    'left': 600,
+    'top': 670,
+    'width': SEAT_WIDTH,
+    'height': SEAT_HEIGHT
+}
 
 P1_SEAT = {
     'left': 55,
