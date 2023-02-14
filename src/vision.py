@@ -1,7 +1,9 @@
 """"
 - Card suit, determine color scores to use
 - Add red check for your turn on the red buttons in the bottom right
-- setup poker key short cuts
+
+CTRL + ALT + F = FOLD
+CTRL + ALT + C = CALL
 
 """
 import re
