@@ -14,7 +14,7 @@ DECK = [f"{c}{s}" for s in SUITS for c in ALL_CARDS]
 
 PRECISION = 3
 
-DELAY_UPPER = 6.1
+DELAY_UPPER = 4.2
 DELAY_LOWER = 0.6
 
 # TABLE POT
@@ -76,6 +76,13 @@ WALLET_LOCATION = {
     'top': 670,
     'width': SEAT_WIDTH,
     'height': SEAT_HEIGHT
+}
+
+TIMER_LOCATION = {
+    'left': WALLET_LOCATION['left'] - 50,
+    'top': WALLET_LOCATION['top'] + 32,
+    'width': 100,
+    'height': 25
 }
 
 P1_SEAT = {

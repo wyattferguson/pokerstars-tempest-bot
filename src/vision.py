@@ -44,19 +44,35 @@ class Vision():
         threshold = 0.8
         max_suit_score = 0
         for s in SUITS:
-            suit_img = cv2.imread(f"{DIR_PATH}\\suits\\{s}.png")
-            test_suit = cv2.cvtColor(suit_img, cv2.COLOR_BGR2GRAY)
-            scores = cv2.matchTemplate(screen_shot, test_suit, cv2.TM_CCOEFF_NORMED)
-            _, max_val, _, max_loc = cv2.minMaxLoc(scores)
-            if max_val > threshold and max_val > max_suit_score:
-                max_suit_score = max_val
+            suit_needle = self.load_grey_image(f"{DIR_PATH}\\needles\\{s}.png")
+            match_score = self.match_image(screen_shot, suit_needle)
+
+            if match_score > threshold and match_score > max_suit_score:
+                max_suit_score = match_score
                 suit = s
 
         return suit
 
+    def match_image(self, image, needle) -> float:
+        scores = cv2.matchTemplate(image, needle, cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, max_loc = cv2.minMaxLoc(scores)
+        return round(max_val, 3)
+
+    def load_grey_image(self, img_path: str):
+        img = cv2.imread(img_path)
+        img_grey = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        return img_grey
+
+    def read_timer(self) -> bool:
+        threshold = 0.85
+        timer_needle = self.load_grey_image(f"{DIR_PATH}\\needles\\timer.png")
+        screen_shot = self.screen_shot(TIMER_LOCATION, True)
+        match_score = self.match_image(screen_shot, timer_needle)
+        return match_score > threshold
+
     def save_image(self, img) -> None:
         img_name = f"{random.randint(1,99999)}"
-        isWritten = cv2.imwrite(f"{DIR_PATH}\\suits\\{img_name}.png", img)
+        isWritten = cv2.imwrite(f"{DIR_PATH}\\snaps\\{img_name}.png", img)
 
         if isWritten:
             print('Image is successfully saved as file.')
@@ -117,4 +133,6 @@ class Vision():
 
 
 if __name__ == "__main__":
-    pass
+    vsn = Vision()
+    while True:
+        vsn.read_timer()
