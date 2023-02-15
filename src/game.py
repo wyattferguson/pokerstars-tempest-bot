@@ -43,20 +43,24 @@ class Game():
         self.logger.addHandler(file_handler)
 
     def run(self) -> None:
-        # print("Press 's' to start playing.")
-        # keyboard.wait('s')
         while True:
+            # wait for timer to appear
+            while not self.vsn.read_timer():
+                time.sleep(1)
+            print("Timer FOUND")
+
+            # read new cards
             new_hand = self.vsn.cards()
             if new_hand and new_hand != self.hand and len(new_hand) == 2:
                 print(f"New Hand -> {new_hand}")
                 self.hand = new_hand
                 self.games += 1
                 self.pot = self.vsn.read_pot()
-                self.wallet = self.vsn.read_wallet()
                 self.action_option, self.players = self.vsn.read_players()
                 print(self)
 
             time.sleep(self.delay)
+            self.wallet = self.vsn.read_wallet()
 
     def random_delay(self) -> None:
         delay = round(random.uniform(DELAY_LOWER, DELAY_UPPER), 1)
@@ -103,8 +107,11 @@ class Game():
 if __name__ == "__main__":
     delay = 2
     testing = True
+    # print("Press 's' to start playing.")
+    # keyboard.wait('s')
     play = Game(delay, 5, 200, 2000, testing)
-    play.hand = ['4s', 'Kd']
-    play.opp_pushed = False
-    play.player_action()
-    # play.run(delay)
+
+    # play.hand = ['4s', 'Kd']
+    # play.opp_pushed = False
+    # play.player_action()
+    play.run()
