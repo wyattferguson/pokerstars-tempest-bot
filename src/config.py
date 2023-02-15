@@ -14,8 +14,8 @@ DECK = [f"{c}{s}" for s in SUITS for c in ALL_CARDS]
 
 PRECISION = 3
 
-DELAY_UPPER = 6.2
-DELAY_LOWER = 0.4
+DELAY_UPPER = 6.1
+DELAY_LOWER = 0.6
 
 # TABLE POT
 

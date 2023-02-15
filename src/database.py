@@ -151,6 +151,7 @@ class DB:
             row_name = self.nash_name(hand[1], hand[0])
             qry = f"SELECT id, status, stack, x{row_name.strip()} as score FROM nash WHERE status = '{status}' AND stack = '{stack}' LIMIT 1"
             run = self.cur.execute(qry)
+        print(qry)
         return run.fetchone()
 
     def nash_name(self, h1: str, h2: str):

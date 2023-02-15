@@ -26,7 +26,7 @@ class Game():
         self.sb = small_blind
         self.bb = 2 * self.sb
         self.gb = 2 * self.bb
-        self.action_option = 'push'
+        self.opp_pushed = False
         self.wallet = wallet
         self.action = False
         self.vsn = Vision()
@@ -51,10 +51,9 @@ class Game():
                 print(f"New Hand -> {new_hand}")
                 self.hand = new_hand
                 self.games += 1
-                self.action_option = self.vsn.read_players()
                 self.pot = self.vsn.read_pot()
                 self.wallet = self.vsn.read_wallet()
-                self.player_pushed, self.players = self.vsn.read_players()
+                self.action_option, self.players = self.vsn.read_players()
                 print(self)
 
             time.sleep(self.delay)
@@ -80,7 +79,9 @@ class Game():
     def player_action(self) -> None:
         mults = self.wager / self.gb
         stack = self.round_decimal(mults, 0.05)
-        nash_row = self.db.get_nash(stack, self.action_option, self.hand)
+        status = "call" if self.opp_pushed else "push"
+        nash_row = self.db.get_nash(stack, status, self.hand)
+
         print(nash_row)
         if not self.testing:
             self.random_delay()
@@ -94,7 +95,7 @@ class Game():
         return round(num / decimal) * decimal
 
     def __str__(self) -> str:
-        game_state = f"POT: {self.pot} | PLYS: {self.players} | WLT: {self.wallet} | GMS: {self.games} | HND: {self.hand} | OPT: {self.action_option} | ACT: {self.action}"
+        game_state = f"POT: {self.pot} | PLYS: {self.players} | WLT: {self.wallet} | GMS: {self.games} | HND: {self.hand} | OPP: {self.opp_pushed} | ACT: {self.action}"
         self.logger.info(game_state)
         return game_state
 
@@ -103,7 +104,7 @@ if __name__ == "__main__":
     delay = 2
     testing = True
     play = Game(delay, 5, 200, 2000, testing)
-    play.hand = ['Ts', 'Js']
-    play.player_pushed = 'call'
+    play.hand = ['4s', 'Kd']
+    play.opp_pushed = False
     play.player_action()
     # play.run(delay)
