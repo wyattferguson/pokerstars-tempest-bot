@@ -1,9 +1,3 @@
-"""
-Add Shortcut Keys:
-CTRL + ALT + F = FOLD
-CTRL + ALT + C = CALL
-
-"""
 
 import keyboard
 from pyautogui import hotkey
@@ -36,7 +30,7 @@ class Game():
 
     def setup_logging(self):
         self.logger.setLevel(logging.INFO)
-        formatter = logging.Formatter('%(asctime)s | %(message)s')
+        formatter = logging.Formatter('%(message)s')
         file_handler = logging.FileHandler('logs.log')
         file_handler.setLevel(logging.DEBUG)
         file_handler.setFormatter(formatter)
@@ -45,9 +39,10 @@ class Game():
     def run(self) -> None:
         while True:
             # wait for timer to appear
-            while not self.vsn.read_timer():
-                time.sleep(1)
-            print("Timer FOUND")
+            print("Waiting...")
+            if not self.testing:
+                while not self.vsn.read_timer():
+                    time.sleep(1)
 
             # read new cards
             new_hand = self.vsn.cards()
@@ -56,7 +51,8 @@ class Game():
                 self.hand = new_hand
                 self.games += 1
                 self.pot = self.vsn.read_pot()
-                self.action_option, self.players = self.vsn.read_players()
+                self.opp_pushed, self.players = self.vsn.read_players()
+                self.strategy()
                 print(self)
 
             time.sleep(self.delay)
@@ -72,26 +68,25 @@ class Game():
         self.action = "fold"
         print("Action -> Folding")
         if not self.testing:
-            pass
+            hotkey('ctrl', 'alt', 'f')
 
-    def call(self) -> None:
+    def push_allin(self) -> None:
         self.action = "call"
         print("Action -> Calling")
         if not self.testing:
-            pass
+            hotkey('ctrl', 'alt', 'c')
 
-    def player_action(self) -> None:
+    def strategy(self) -> None:
         mults = self.wager / self.gb
         stack = self.round_decimal(mults, 0.05)
         status = "call" if self.opp_pushed else "push"
         nash_row = self.db.get_nash(stack, status, self.hand)
 
-        print(nash_row)
         if not self.testing:
             self.random_delay()
 
         if nash_row['score'] >= 0.5:
-            self.call()
+            self.push_allin()
         else:
             self.fold()
 
@@ -100,16 +95,20 @@ class Game():
 
     def __str__(self) -> str:
         game_state = f"POT: {self.pot} | PLYS: {self.players} | WLT: {self.wallet} | GMS: {self.games} | HND: {self.hand} | OPP: {self.opp_pushed} | ACT: {self.action}"
-        self.logger.info(game_state)
+        if not self.testing:
+            self.logger.info(game_state)
         return game_state
 
 
 if __name__ == "__main__":
     delay = 2
     testing = True
+    small_blind = 5
+    wager = 200
+    wallet = 2000
     # print("Press 's' to start playing.")
     # keyboard.wait('s')
-    play = Game(delay, 5, 200, 2000, testing)
+    play = Game(delay, small_blind, wager, wallet, testing)
 
     # play.hand = ['4s', 'Kd']
     # play.opp_pushed = False
