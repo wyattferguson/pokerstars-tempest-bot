@@ -14,7 +14,7 @@ class DB:
 
     def __init__(self) -> None:
         try:
-            db_path = Path(__file__).parent / DATABASE
+            db_path = DIR_PATH / DATABASE
             self.conn = sqlite3.connect(db_path)
             self.conn.row_factory = self.dict_factory
             self.cur = self.conn.cursor()
@@ -143,11 +143,24 @@ class DB:
         return self._run(qry)
 
     def get_nash(self, stack: float, status: str, hand: list[str]):
-        suited = "" if hand[0][1] == hand[1][1] else "o"
-        row_name = f"{hand[0][0]}{hand[1][0]}{suited}"
-        qry = f"SELECT id, status, stack, '{row_name}' as score FROM nash WHERE status = '{status}' AND stack = '{stack}' LIMIT 1"
-        run = self.cur.execute(qry)
+        row_name = self.nash_name(hand[0], hand[1])
+        try:
+            qry = f"SELECT id, status, stack, x{row_name.strip()} as score FROM nash WHERE status = '{status}' AND stack = '{stack}' LIMIT 1"
+            run = self.cur.execute(qry)
+        except Exception as e:
+            row_name = self.nash_name(hand[1], hand[0])
+            qry = f"SELECT id, status, stack, x{row_name.strip()} as score FROM nash WHERE status = '{status}' AND stack = '{stack}' LIMIT 1"
+            run = self.cur.execute(qry)
         return run.fetchone()
+
+    def nash_name(self, h1: str, h2: str):
+        name = ""
+        if h1[0] == h2[0]:
+            name = f"{h1[0]}{h1[0]}"
+        else:
+            suited = "s" if h1[1] == h2[1] else "o"
+            name = f"{h1[0]}{h2[0]}{suited}"
+        return name
 
     def get_single(self, table: str, where_field: str = False, where_value: str = False) -> dict:
         """

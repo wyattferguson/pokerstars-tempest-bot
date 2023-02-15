@@ -42,18 +42,22 @@ class Generator():
         return self.get_random_hand(board_size)
 
     def import_nash_tables(self):
+        # create all the coloumn names from the csv
         for status in ["call", "push"]:
-            nash_data = pd.read_csv(f"C:\\Code\\poker\\src\\nash_{status}.csv", header=0, squeeze=True).to_dict()
-            # write coloumn names to table
-            # for key, value in nash_data.items():
-            #     col = key.strip()
-            #     self.db.add_table_column("nash", col, "REAL")
+            nash_data = pd.read_csv(f"{DIR_PATH}\\data\\nash_{status}.csv", header=0, squeeze=True).to_dict()
 
+            for key, value in nash_data.items():
+                col = "x" + key.strip()
+                self.db.add_table_column("nash", col, "REAL")
+
+        # write all data from call / push csv
+        for status in ["call", "push"]:
+            nash_data = pd.read_csv(f"{DIR_PATH}\\data\\nash_{status}.csv", header=0, squeeze=True).to_dict()
             cnt = 0
             while True:
                 row = {'status': status}
                 for key, value in nash_data.items():
-                    col = key.strip()
+                    col = 'x' + key.strip()
                     row[col] = value[cnt]
                 if cnt > 0:
                     self.db.insert("nash", row)
@@ -140,5 +144,5 @@ if __name__ == "__main__":
     # print(gen.run(model="monte"))
     # print(gen.run(model="rank"))
     # print(gen.run(model="eval7"))
-    # gen.import_nash_tables()
+    gen.import_nash_tables()
     # gen.eval_seven()
