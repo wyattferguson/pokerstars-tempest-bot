@@ -29,16 +29,16 @@ POT_LOCATION = {
 
 # YOUR CARDS
 
-CARD_OFFSET = 80
-CARD_SUIT_Y_OFFSET = 30
-CARD_SUIT_X_OFFSET = 5
+CARD_OFFSET = 83
+CARD_SUIT_Y_OFFSET = 33
+CARD_SUIT_X_OFFSET = 0
 CARD_SUIT_SQR = 20
 
 CARD1_VALUE = {
-    'left': 560,
-    'top': 574,
-    'width': 25,
-    'height': 32
+    'left': 562,
+    'top': 570,
+    'width': 22,
+    'height': 30
 }
 
 CARD2_VALUE = {
