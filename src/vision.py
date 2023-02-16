@@ -16,7 +16,7 @@ class Vision():
         self.snap = mss.mss()
         self.threshold = 0.8
 
-    def cards(self):
+    def cards(self) -> list[str, str]:
         hand = []
 
         threshold = 0.40
@@ -133,14 +133,14 @@ class Vision():
         # print("\n############################\n")
         return (player_push, player_cnt)
 
-    def screen_shot(self, location: dict, gray_convert: bool = False):
+    def screen_shot(self, location: dict, gray_convert: bool = False) -> np.array:
         screen = np.array(self.snap.grab(location))
         if gray_convert:
             gray_screen = cv2.cvtColor(screen, cv2.COLOR_BGR2GRAY)
             return gray_screen
         return screen
 
-    def popup_image(self, image):
+    def popup_image(self, image) -> None:
         cv2.imshow('Screen Shot', image)
         cv2.waitKey(1)
         time.sleep(1)

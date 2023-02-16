@@ -1,14 +1,12 @@
 
 import keyboard
 from pyautogui import hotkey
-import logging
-
 from config import *
 from vision import Vision
 
 
 class Game():
-    def __init__(self, delay: int = 1, small_blind: int = 500, base_wager: int = 0,
+    def __init__(self, delay: int = 1, small_blind: int = 500,
                  wallet: int = 200000, testing: bool = True) -> None:
         self.delay = delay
         self.players = 0
@@ -19,7 +17,6 @@ class Game():
         self.testing = testing
         self.wager = 0
         self.stacks = 0
-        self.base_wager = base_wager
         self.sb = small_blind
         self.bb = 2 * self.sb
         self.gb = 2 * self.bb
@@ -28,16 +25,6 @@ class Game():
         self.action = False
         self.vsn = Vision()
         self.db = DB()
-        self.logger = logging.getLogger()
-        self.setup_logging()
-
-    def setup_logging(self):
-        self.logger.setLevel(logging.INFO)
-        formatter = logging.Formatter('%(message)s')
-        file_handler = logging.FileHandler('logs.log')
-        file_handler.setLevel(logging.DEBUG)
-        file_handler.setFormatter(formatter)
-        self.logger.addHandler(file_handler)
 
     def run(self) -> None:
         print("Runnning!")
@@ -51,6 +38,7 @@ class Game():
                 self.hand = new_hand
                 self.games += 1
 
+                # wait until your timer appears
                 if not self.testing:
                     while not self.vsn.read_timer():
                         time.sleep(1)
@@ -59,14 +47,14 @@ class Game():
                 print("Pot -> ", self.pot)
 
                 self.opp_pushed, self.players = self.vsn.read_players()
+                print(f"Players -> {self.players }")
                 if self.wager > 0:
                     self.strategy()
                 else:
                     self.action = "No Wager"
-                self.print_status()
-            # else:
 
-            #     print("Waiting for hand...")
+                self.print_summary()
+
             time.sleep(self.delay)
 
     def random_delay(self) -> None:
@@ -103,7 +91,7 @@ class Game():
         else:
             self.fold()
 
-    def print_status(self):
+    def print_summary(self) -> None:
         print("\n###### SUMMARY ######\n")
         print(f"Game: {self.games}")
         print(f"Pot: {self.pot}")
@@ -113,24 +101,13 @@ class Game():
         print(f"Action: {self.action}")
         print("\n####################\n")
 
-    def __str__(self) -> str:
-        game_state = f"POT: {self.pot} | PLYS: {self.players} | WLT: {self.wallet} | WGR: {self.wager} | GMS: {self.games} | HND: {self.hand} | OPP: {self.opp_pushed} | ACT: {self.action}"
-        if not self.testing:
-            self.logger.info(game_state)
-        return game_state
-
 
 if __name__ == "__main__":
     delay = 2
     testing = True
-    base_wager = 20000
     small_blind = 500
     wallet = 100000
     # print("Press 's' to start playing.")
     # keyboard.wait('s')
-    play = Game(delay, small_blind, base_wager, wallet, testing)
-
-    # play.hand = ['4s', 'Kd']
-    # play.opp_pushed = False
-    # play.player_action()
+    play = Game(delay, small_blind, wallet, testing)
     play.run()
