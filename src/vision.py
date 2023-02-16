@@ -5,7 +5,7 @@ import mss
 from typing import Tuple
 import numpy as np
 import pytesseract as ocr
-
+from card import Card
 from config import *
 
 ocr.pytesseract.tesseract_cmd = r'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
@@ -16,7 +16,7 @@ class Vision():
         self.snap = mss.mss()
         self.threshold = 0.8
 
-    def cards(self) -> list[str, str]:
+    def cards(self) -> list[Card, Card]:
         hand = []
 
         threshold = 0.40
@@ -39,7 +39,7 @@ class Vision():
                 card_suit = self.card_suit(idx)
 
                 if card_suit:
-                    hand.append(f"{card_value}{card_suit}")
+                    hand.append(Card(card_value, card_suit))
                 else:
                     return []
         # if hand:

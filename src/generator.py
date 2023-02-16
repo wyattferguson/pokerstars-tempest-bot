@@ -1,4 +1,5 @@
 from config import *
+from database import DB
 from montecarlo import MonteCarlo
 import treys
 import eval7

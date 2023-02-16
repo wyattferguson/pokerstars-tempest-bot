@@ -2,6 +2,8 @@
 import keyboard
 from pyautogui import hotkey
 from config import *
+from database import DB
+from card import Card
 from vision import Vision
 
 

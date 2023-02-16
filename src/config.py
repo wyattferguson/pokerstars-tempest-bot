@@ -5,8 +5,6 @@ from pathlib import Path
 
 DIR_PATH = Path(__file__).parent
 
-from database import DB
-
 SUITS = ["s", "c", "h", "d"]
 FACE_CARDS = {1: 'A', 11: 'J', 12: 'Q', 13: 'K', 14: 'A'}
 ALL_CARDS = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A']

@@ -2,6 +2,7 @@ import sqlite3
 from sqlite3 import Error
 
 from config import *
+from card import Card
 
 DATABASE = "../madrid.db"
 
@@ -153,13 +154,13 @@ class DB:
         # print(qry)
         return run.fetchone()
 
-    def nash_name(self, h1: str, h2: str):
+    def nash_name(self, h1: str, h2: str) -> str:
         name = ""
-        if h1[0] == h2[0]:
-            name = f"{h1[0]}{h1[0]}"
+        if h1.value == h2.value:
+            name = f"{h1.value}{h2.value}"
         else:
-            suited = "s" if h1[1] == h2[1] else "o"
-            name = f"{h1[0]}{h2[0]}{suited}"
+            suited = "s" if h1.suit == h2.suit else "o"
+            name = f"{h1.value}{h2.value}{suited}"
         return name
 
     def get_single(self, table: str, where_field: str = False, where_value: str = False) -> dict:
