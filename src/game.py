@@ -3,14 +3,14 @@ import keyboard
 from pyautogui import hotkey
 from config import *
 from database import DB
-from card import Card
 from vision import Vision
 
 
 class Game():
     def __init__(self, delay: int = 1, small_blind: int = 500,
-                 wallet: int = 200000, testing: bool = True) -> None:
+                 wallet: int = 200000, testing: bool = True, bluffing: bool = False) -> None:
         self.delay = delay
+        self.bluffing = bluffing
         self.players = 0
         self.pot = 0
         self.hand = []
@@ -40,16 +40,21 @@ class Game():
                 self.hand = new_hand
                 self.games += 1
 
+                winp = self.db.get_hand(self.hand)
+                self.hand_odds = round(winp['win'], 2)
+                self.log(f"Odds -> {self.hand_odds * 100}")
+
                 # wait until your timer appears
                 if not self.testing:
                     while not self.vsn.read_timer():
                         time.sleep(1)
 
                 self.pot = self.vsn.read_pot()
-                self.log("Pot -> ", self.pot)
+                self.log(f"Pot -> {self.pot}")
 
                 self.opp_pushed, self.players = self.vsn.read_players()
                 self.log(f"Players -> {self.players }")
+
                 if self.wager > 0:
                     self.strategy()
                 else:
@@ -58,6 +63,13 @@ class Game():
                 self.print_summary()
 
             time.sleep(self.delay)
+
+    def bluff(self) -> bool:
+        if self.hand_odds > BLUFF_MIN:
+            selector = random.randint(1, 10)
+            if selector <= BLUFF_RATE:
+                return True
+        return False
 
     def random_delay(self) -> None:
         delay = round(random.uniform(DELAY_LOWER, DELAY_UPPER), 1)
@@ -82,13 +94,11 @@ class Game():
         status = "call" if self.opp_pushed else "push"
         nash_row = self.db.get_nash(self.stacks, status, self.hand)
 
-        winp = self.db.get_hand(self.hand)
-        self.hand_odds = round(winp['win'], 2)
         if not self.testing:
             self.random_delay()
 
         self.log(nash_row)
-        if nash_row['score'] >= 0.5:
+        if nash_row['score'] >= 0.5 or self.bluff():
             self.push_allin()
         else:
             self.fold()
@@ -111,10 +121,11 @@ class Game():
 if __name__ == "__main__":
     delay = 2
     testing = True
+    bluffing = False  # is bluffing enabled
     small_blind = 500
-    wallet = 100000
+    wallet = 50000
     if not testing:
         print("Press 's' to start playing.")
         keyboard.wait('s')
-    play = Game(delay, small_blind, wallet, testing)
+    play = Game(delay, small_blind, wallet, testing, bluffing)
     play.run()
