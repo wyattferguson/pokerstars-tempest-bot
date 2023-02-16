@@ -80,11 +80,12 @@ class Vision():
         return match_score > self.threshold
 
     def save_image(self, img) -> None:
-        img_name = f"{random.randint(1,99999)}"
-        isWritten = cv2.imwrite(f"{DIR_PATH}\\snaps\\{img_name}.png", img)
+        name_tag = f"{random.randint(1,99999)}"
+        img_name = f"{DIR_PATH}\\snaps\\{name_tag}.png"
+        is_written = cv2.imwrite(img_name, img)
 
-        if isWritten:
-            print('Image is successfully saved as file.')
+        if is_written:
+            print(f'Saved: {img_name}')
 
     def read_pot(self) -> int:
         pot_screen = self.screen_shot(POT_LOCATION)

@@ -1,5 +1,4 @@
 import sqlite3
-from pathlib import Path
 from sqlite3 import Error
 
 from config import *
