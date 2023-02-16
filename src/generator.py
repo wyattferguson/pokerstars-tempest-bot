@@ -14,11 +14,7 @@ class Generator():
         self.board = board
         self.interations = interations
 
-    def run(self, model: str = False):
-        if not model:
-            print("#### Error: No Model Given ####")
-            exit()
-
+    def run(self, model: str = False) -> None:
         start = time.time()
         if model == "monte":
             gen_model = self.monte_pairs
@@ -26,6 +22,9 @@ class Generator():
             gen_model = self.hand_rank
         elif model == "eval7":
             gen_model = self.eval_seven
+        else:
+            print("#### Error: Invalid Model Given ####")
+            exit()
 
         sub_deck = DECK.copy()
         for card1 in DECK:
@@ -35,13 +34,13 @@ class Generator():
 
         print("Time elapsed(seconds): ", round(time.time() - start, 3))
 
-    def get_random_hand(self, size: int = 2):
+    def get_random_hand(self, size: int = 2) -> list:
         return random.sample(DECK, size)
 
-    def get_random_board(self, board_size: int = 3):
+    def get_random_board(self, board_size: int = 3) -> list:
         return self.get_random_hand(board_size)
 
-    def import_nash_tables(self):
+    def import_nash_tables(self) -> None:
         # create all the coloumn names from the csv
         for status in ["call", "push"]:
             nash_data = pd.read_csv(f"{DIR_PATH}\\data\\nash_{status}.csv", header=0, squeeze=True).to_dict()
@@ -63,7 +62,7 @@ class Generator():
                     self.db.insert("nash", row)
                 cnt += 1
 
-    def eval_seven(self, card1: str = "", card2: str = ""):
+    def eval_seven(self, card1: str = "", card2: str = "") -> None:
         hand = [eval7.Card(card1), eval7.Card(card2)]
 
         score = eval7.evaluate(hand)
@@ -73,7 +72,7 @@ class Generator():
         if not self.test:
             self.db.update_hand_score(card1, card2, score)
 
-    def hand_rank(self, card1: str = "", card2: str = ""):
+    def hand_rank(self, card1: str = "", card2: str = "") -> None:
         hand = [
             treys.Card.new(card1),
             treys.Card.new(card2)
@@ -112,7 +111,7 @@ class Generator():
 
                             self.db.insert("hand_ranks", row)
 
-    def monte_pairs(self, card1: str = "", card2: str = ""):
+    def monte_pairs(self, card1: str = "", card2: str = "") -> None:
         # board = ["As", "Ks", "Jd"]
         exact_precision = False
 

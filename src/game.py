@@ -32,8 +32,8 @@ class Game():
             self.wallet, self.wager = self.vsn.read_wallet(self.wallet, self.wager)
             new_hand = self.vsn.cards()
             if new_hand and new_hand != self.hand and len(new_hand) == 2:
-                print("Wager -> ", self.wager)
-                print(f"New Hand -> {new_hand}")
+                self.log(f"Wager -> {self.wager}")
+                self.log(f"New Hand -> {new_hand}")
 
                 self.hand = new_hand
                 self.games += 1
@@ -44,10 +44,10 @@ class Game():
                         time.sleep(1)
 
                 self.pot = self.vsn.read_pot()
-                print("Pot -> ", self.pot)
+                self.log("Pot -> ", self.pot)
 
                 self.opp_pushed, self.players = self.vsn.read_players()
-                print(f"Players -> {self.players }")
+                self.log(f"Players -> {self.players }")
                 if self.wager > 0:
                     self.strategy()
                 else:
@@ -59,19 +59,19 @@ class Game():
 
     def random_delay(self) -> None:
         delay = round(random.uniform(DELAY_LOWER, DELAY_UPPER), 1)
-        print(f"Delay -> {delay}s")
+        self.log(f"Delay -> {delay}s")
         if not self.testing:
             time.sleep(delay)
 
     def fold(self) -> None:
         self.action = "fold"
-        print("Action -> Folding")
+        self.log("Action -> Folding")
         if not self.testing:
             hotkey('ctrl', 'alt', 'f')
 
     def push_allin(self) -> None:
         self.action = "call"
-        print("Action -> Calling")
+        self.log("Action -> Calling")
         if not self.testing:
             hotkey('ctrl', 'alt', 'c')
 
@@ -85,11 +85,15 @@ class Game():
         if not self.testing:
             self.random_delay()
 
-        print(nash_row)
+        self.log(nash_row)
         if nash_row['score'] >= 0.5:
             self.push_allin()
         else:
             self.fold()
+
+    def log(self, message: any) -> None:
+        if testing:
+            print(message)
 
     def print_summary(self) -> None:
         print("\n###### SUMMARY ######\n")
@@ -107,7 +111,8 @@ if __name__ == "__main__":
     testing = True
     small_blind = 500
     wallet = 100000
-    # print("Press 's' to start playing.")
-    # keyboard.wait('s')
+    if not testing:
+        print("Press 's' to start playing.")
+        keyboard.wait('s')
     play = Game(delay, small_blind, wallet, testing)
     play.run()
