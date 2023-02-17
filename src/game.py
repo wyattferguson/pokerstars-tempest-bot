@@ -17,6 +17,7 @@ class Game():
         self.hand = []
         self.hand_odds = 0
         self.games = 0
+        self.live = LIVE_PLAY
         self.use_keys = USE_KEYS
         self.testing = TESTING
         self.wager = 0
@@ -50,7 +51,7 @@ class Game():
 
                 # wait until your timer appears
                 self.log("Waiting for my Turn")
-                if not self.testing:
+                if not self.testing or self.live:
                     while not self.vsn.read_timer():
                         time.sleep(self.delay)
 
@@ -114,7 +115,7 @@ class Game():
 
         self.log(nash_row)
 
-        if nash_row['score'] >= 0.5 or self.bluff():
+        if nash_row['score'] >= 0.5:
             self.push_allin()
         else:
             self.fold()

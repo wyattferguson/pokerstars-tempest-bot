@@ -8,8 +8,9 @@ DIR_PATH = Path(__file__).parent
 # game options
 
 TESTING = True  # toggle testing and logging
-BLUFFING = True  # toggle use of bluffing
+BLUFFING = False  # toggle use of bluffing
 USE_KEYS = False  # toggle using shortcut keys in game
+LIVE_PLAY = True
 
 BLUFF_RATE = 1  # 0 (never) -> 10 (always)
 BLUFF_MIN = 0.43  # minimum hand strength to bluff
