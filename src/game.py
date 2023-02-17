@@ -9,17 +9,16 @@ from vision import Vision
 class Game():
     """ Tempest Game Simulator """
 
-    def __init__(self, delay: int = 1, small_blind: int = 500,
-                 wallet: int = 200000, testing: bool = True, bluffing: bool = False, use_keys: bool = False) -> None:
-        self.delay = delay
-        self.bluffing = bluffing
+    def __init__(self, small_blind: int = 1, wallet: int = 50) -> None:
+        self.delay = 1
+        self.bluffing = BLUFFING
         self.players = 0
         self.pot = 0
         self.hand = []
         self.hand_odds = 0
         self.games = 0
-        self.use_keys = use_keys
-        self.testing = testing
+        self.use_keys = USE_KEYS
+        self.testing = TESTING
         self.wager = 0
         self.stacks = 0
         self.sb = small_blind
@@ -53,7 +52,7 @@ class Game():
                 self.log("Waiting for my Turn")
                 if not self.testing:
                     while not self.vsn.read_timer():
-                        time.sleep(1)
+                        time.sleep(self.delay)
 
                 self.pot = self.vsn.read_pot()
                 self.log(f"Pot -> {self.pot}")
@@ -123,7 +122,7 @@ class Game():
     def log(self, message: any) -> None:
         """ Print message to console for testing debug """
 
-        if testing:
+        if self.testing:
             print(message)
 
     def print_summary(self) -> None:
@@ -140,15 +139,12 @@ class Game():
 
 
 if __name__ == "__main__":
-    delay = 2
-    testing = True  # output logging details and no keypresses
-    bluffing = False  # is bluffing enabled
-    use_keys = False  # run key combos to take actions
-
     small_blind = 0.02
     wallet = 1  # buy in amount
-    if not testing:
+
+    if not TESTING:
         print("Press 's' to start playing.")
         keyboard.wait('s')
-    play = Game(delay, small_blind, wallet, testing, bluffing)
+
+    play = Game(small_blind, wallet)
     play.run()

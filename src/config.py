@@ -5,18 +5,26 @@ from pathlib import Path
 
 DIR_PATH = Path(__file__).parent
 
+# game options
+
+TESTING = True  # toggle testing and logging
+BLUFFING = True  # toggle use of bluffing
+USE_KEYS = False  # toggle using shortcut keys in game
+
+BLUFF_RATE = 1  # 0 (never) -> 10 (always)
+BLUFF_MIN = 0.43  # minimum hand strength to bluff
+
+DELAY_UPPER = 4.2  # upper time bound to delay action on screen
+DELAY_LOWER = 0.6  # lower bound for action on screen
+
+# card / deck generation
+
 SUITS = ["s", "c", "h", "d"]
 FACE_CARDS = {1: 'A', 11: 'J', 12: 'Q', 13: 'K', 14: 'A'}
 ALL_CARDS = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A']
 DECK = [f"{c}{s}" for s in SUITS for c in ALL_CARDS]
 
 PRECISION = 3
-
-BLUFF_RATE = 1  # 0 (never) -> 10 (always)
-BLUFF_MIN = 0.43  # minimum hand strength to bluff
-
-DELAY_UPPER = 4.2
-DELAY_LOWER = 0.6
 
 # TABLE POT
 
@@ -28,7 +36,7 @@ POT_LOCATION = {
 }
 
 
-# YOUR CARDS
+# CARD / SUIT LOCATIONS
 
 CARD_OFFSET = 83
 CARD_SUIT_Y_OFFSET = 33
