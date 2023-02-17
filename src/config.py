@@ -13,7 +13,7 @@ DECK = [f"{c}{s}" for s in SUITS for c in ALL_CARDS]
 PRECISION = 3
 
 BLUFF_RATE = 1  # 0 (never) -> 10 (always)
-BLUFF_MIN = 0.4  # minimum hand strength to bluff
+BLUFF_MIN = 0.43  # minimum hand strength to bluff
 
 DELAY_UPPER = 4.2
 DELAY_LOWER = 0.6
