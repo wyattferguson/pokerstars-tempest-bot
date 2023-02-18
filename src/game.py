@@ -8,15 +8,13 @@ from vision import Vision
 
 """
 TODO:
-- Max stack is what ever the other oppent has
-- take anything over 56&
 - fix read player timer
-- fix stack calculation
+- re-add shortcut keys to PS app
 """
 
 
 class Game():
-    """ Tempest Game Simulator """
+    """ Push / Fold Game Simulator """
 
     def __init__(self, small_blind: int = 1, base_wager: float = 0) -> None:
         self.delay = 1
@@ -24,7 +22,6 @@ class Game():
         self.hand = []
         self.hand_odds = 0
         self.games = 0
-        self.live = LIVE_PLAY
         self.use_keys = USE_KEYS
         self.testing = TESTING
         self.base_wager = base_wager
@@ -32,7 +29,8 @@ class Game():
         self.stacks = 0
         self.sb = small_blind
         self.bb = 2 * self.sb
-        self.pot_min = self.sb + self.bb
+        self.gb = 2 * self.bb
+        self.pot_min = self.sb + self.bb + self.gb
         self.opp_pushed = False
         self.action = False
         self.vsn = Vision()
@@ -43,11 +41,8 @@ class Game():
 
         print("Runnning!")
         while True:
-
             new_hand = self.vsn.cards()
-
             self.update_wager()
-
             if new_hand and new_hand != self.hand and len(new_hand) == 2:
                 self.log(f"New Hand -> {new_hand}")
 
@@ -78,16 +73,16 @@ class Game():
     def wait_for_turn(self) -> None:
         # wait until your timer appears
         self.log("Waiting for my Turn")
-        if not self.testing or self.live:
+        if not self.testing:
             while not self.vsn.read_timer():
                 time.sleep(self.delay)
 
     def update_wager(self):
         try:
             tmp_wager = self.vsn.read_wallet()
-            if tmp_wager and tmp_wager != self.wager:
-                # self.log(f"New Wager -> {tmp_wager}")
-                self.wager = round(float(tmp_wager), 2)
+            if tmp_wager and float(tmp_wager) != self.wager:
+                self.log(f"New Wager -> {tmp_wager}")
+                self.wager = float(tmp_wager)
         except Exception as e:
             self.wager = self.base_wager
 
@@ -118,9 +113,7 @@ class Game():
     def strategy(self) -> None:
         """ Nash push/fold strategy """
 
-        self.stacks = round(self.wager / self.bb, 1)
-        if self.stacks > 20:
-            self.stacks = 20
+        self.stacks = round(self.wager / self.gb, 1)
         status = "call" if self.opp_pushed else "push"
         nash_row = self.db.get_nash(self.stacks, status, self.hand)
 
@@ -128,11 +121,7 @@ class Game():
             self.random_delay()
 
         self.log(nash_row)
-
-        if nash_row['score'] >= 0.5 or self.hand_odds >= 0.56:
-            self.push_allin()
-        else:
-            self.fold()
+        self.push_allin() if nash_row['score'] >= 0.5 else self.fold()
 
     def log(self, message: any) -> None:
         """ Print message to console for testing debug """
@@ -143,8 +132,7 @@ class Game():
     def print_summary(self) -> None:
         """ Print current game details to console """
 
-        print("\n###### SUMMARY ######\n")
-        print(f"Game: {self.games}")
+        print(f"\n###### SUMMARY #{self.games} ######\n")
         print(f"Pot: {self.pot}")
         print(f"Purse: {self.wager} ({self.stacks} Stacks)")
         print(f"Hand: {self.hand} ({self.hand_odds * 100}%)")
@@ -154,8 +142,8 @@ class Game():
 
 
 if __name__ == "__main__":
-    small_blind = 0.5
-    base_wager = 8
+    small_blind = 500
+    base_wager = 20000
     if not TESTING:
         print("Press 's' to start playing.")
         keyboard.wait('s')

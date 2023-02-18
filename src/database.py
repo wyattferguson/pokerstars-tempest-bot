@@ -149,6 +149,9 @@ class DB:
         row_name = self.nash_name(hand[0], hand[1])
         if stack < 1:
             stack = 1.1
+        elif stack > 200:
+            stack = 200
+
         try:
             qry = f"SELECT id, status, stack, x{row_name.strip()} as score FROM nash WHERE status = '{status}' AND stack = '{stack}' LIMIT 1"
             run = self.cur.execute(qry)

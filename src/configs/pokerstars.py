@@ -1,15 +1,16 @@
 
-# TABLE POT
-
+# TABLE
 POT_LOCATION = {
-    'left': 580,
-    'top': 280,
-    'width': 125,
-    'height': 32
+    'left': 550,
+    'top': 327,
+    'width': 180,
+    'height': 28
 }
 
 
 # CARD / SUIT LOCATIONS
+
+CARD_PATH = f"{DIR_PATH}\\needles\\pokerstars\\"
 
 CARD_OFFSET = 83
 CARD_SUIT_Y_OFFSET = 33
@@ -48,16 +49,13 @@ CARD_VALUE_LOCAIONS = [CARD1_VALUE, CARD2_VALUE]
 CARD_SUIT_LOCAIONS = [CARD1_SUIT, CARD2_SUIT]
 
 
-# ALL PLAYER WALLET BOXES / SEATS
-
-SEAT_WIDTH = 150
-SEAT_HEIGHT = 25
+# player info
 
 WALLET_LOCATION = {
     'left': 600,
     'top': 670,
-    'width': SEAT_WIDTH,
-    'height': SEAT_HEIGHT
+    'width': 150,
+    'height': 25
 }
 
 TIMER_LOCATION = {
@@ -66,40 +64,3 @@ TIMER_LOCATION = {
     'width': 100,
     'height': 25
 }
-
-P1_SEAT = {
-    'left': 55,
-    'top': 510,
-    'width': SEAT_WIDTH,
-    'height': SEAT_HEIGHT
-}
-
-P2_SEAT = {
-    'left': 100,
-    'top': 240,
-    'width': SEAT_WIDTH,
-    'height': SEAT_HEIGHT
-}
-
-P3_SEAT = {
-    'left': 545,
-    'top': 154,
-    'width': SEAT_WIDTH,
-    'height': SEAT_HEIGHT
-}
-
-P4_SEAT = {
-    'left': 1035,
-    'top': 242,
-    'width': SEAT_WIDTH,
-    'height': SEAT_HEIGHT
-}
-
-P5_SEAT = {
-    'left': 1080,
-    'top': 510,
-    'width': SEAT_WIDTH,
-    'height': SEAT_HEIGHT
-}
-
-PLAYER_SEATS = [P1_SEAT, P2_SEAT, P3_SEAT, P4_SEAT, P5_SEAT]

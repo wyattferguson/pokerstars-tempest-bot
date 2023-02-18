@@ -25,7 +25,7 @@ class Vision():
 
             # self.popup_image(grey_card)
             for n in ALL_CARDS:
-                card_needle = self.load_grey_image(f"{DIR_PATH}\\needles\\{n}.png")
+                card_needle = self.load_grey_image(f"{CARD_PATH}{n}.png")
                 match_score = self.match_image(grey_card, card_needle)
 
                 if match_score > self.threshold and match_score > best_score:
@@ -50,7 +50,7 @@ class Vision():
 
         # self.popup_image(grey_suit)
         for s in SUITS:
-            suit_needle = self.load_grey_image(f"{DIR_PATH}\\needles\\{s}.png")
+            suit_needle = self.load_grey_image(f"{CARD_PATH}{s}.png")
             match_score = self.match_image(grey_suit, suit_needle)
 
             if match_score > self.threshold and match_score > max_suit_score:
@@ -71,7 +71,7 @@ class Vision():
 
     def read_timer(self) -> bool:
         threshold = 0.75
-        timer_needle = self.load_grey_image(f"{DIR_PATH}\\needles\\timer.png")
+        timer_needle = self.load_grey_image(f"{CARD_PATH}timer.png")
         screen_shot = self.screen_shot(TIMER_LOCATION, True)
         # self.popup_image(screen_shot)
         match_score = self.match_image(screen_shot, timer_needle)
@@ -88,16 +88,19 @@ class Vision():
 
     def read_pot(self) -> float:
         screen_img = self.screen_shot(POT_LOCATION)
-        # self.popup_image(screen_img)
         img_str = ocr.image_to_string(screen_img)
         values = re.sub('[^0-9^.]', '', img_str.strip())
         return float(values) if values else False
 
-    def read_wallet(self):
-        ocr_config = "--psm 13 --oem 1 -c tessedit_char_whitelist=0123456789.$"
+    def read_wallet(self) -> float:
+        ocr_config = "--psm 13 --oem 1 -c tessedit_char_whitelist=0123456789,$()"
         screen_img = self.screen_shot(WALLET_LOCATION)
+        # self.popup_image(screen_img)
         img_str = ocr.image_to_string(screen_img, lang='eng', config=ocr_config)
-        values = re.sub('[^0-9^.]', '', img_str.strip())
+        parsed_img = img_str[0: img_str.find('(')]
+
+        # print(parsed_img)
+        values = re.sub('[^0-9^.]', '', parsed_img.strip())
         return values
 
     def screen_shot(self, location: dict, gray_convert: bool = False) -> np.array:
@@ -117,11 +120,11 @@ if __name__ == "__main__":
     pass
     vsn = Vision()
     while True:
-        #     # pot = vsn.read_pot()
-        #     # print(pot)
-        #     wallet = vsn.read_wallet()
-        #     print(wallet)
-        cards = vsn.cards()
-        print(cards)
+        # pot = vsn.read_pot()
+        # print(pot)
+        wallet = vsn.read_wallet()
+        print(wallet)
+        # cards = vsn.cards()
+        # print(cards)
         # print(vsn.read_timer())
         time.sleep(1)
