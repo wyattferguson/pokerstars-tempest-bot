@@ -32,16 +32,9 @@ PRECISION = 3
 WINDOW_Y = 244
 WINDOW_X = 0
 
-PLAYER_SEATS = [
-    (550, 788),  # bottom
-    (23, 433),  # left
-    (555, 182),  # top
-    (1100, 445),  # right
-]
-
 PLAYER_LOC = {
-    'left': PLAYER_SEATS[PLAYER_SEAT][0] + WINDOW_X,
-    'top': PLAYER_SEATS[PLAYER_SEAT][1] + WINDOW_Y,
+    'left': 550 + WINDOW_X,
+    'top': 790 + WINDOW_Y,
 }
 
 POT_LOCATION = {

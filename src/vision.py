@@ -33,9 +33,9 @@ class Vision():
                     best_score = match_score
                     card_value = n
             if card_value and best_score > self.threshold:
-                # print("CARD: ", idx, best_score, card_value)
                 card_suit = self.card_suit(idx)
 
+                # print(card_value, card_suit)
                 if card_suit:
                     hand.append(Card(card_value, card_suit))
                 else:
@@ -91,7 +91,7 @@ class Vision():
         self.popup_image(screen_img)
         img_str = ocr.image_to_string(screen_img)
         values = re.sub('[^0-9^.]', '', img_str.strip())
-        return values
+        return float(values) if values else False
 
     def read_wallet(self):
         ocr_config = "--psm 13 --oem 1 -c tessedit_char_whitelist=0123456789.$"

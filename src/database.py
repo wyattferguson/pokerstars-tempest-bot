@@ -12,7 +12,8 @@ class DB:
     Generic sqlLite3 library
     """
 
-    def __init__(self) -> None:
+    def __init__(self, test: bool = False) -> None:
+        self.test = test
         try:
             db_path = DIR_PATH / DATABASE
             self.conn = sqlite3.connect(db_path)
@@ -140,10 +141,14 @@ class DB:
 
     def get_hand(self, hand: list[str]):
         qry = f"SELECT * FROM hands WHERE (card1 = '{hand[0]}' AND card2 = '{hand[1]}') OR (card1 = '{hand[1]}' AND card2 = '{hand[0]}') LIMIT 1"
+        if self.test:
+            print(qry)
         return self._run(qry)
 
     def get_nash(self, stack: float, status: str, hand: list[str]):
         row_name = self.nash_name(hand[0], hand[1])
+        if stack < 1:
+            stack = 1.1
         try:
             qry = f"SELECT id, status, stack, x{row_name.strip()} as score FROM nash WHERE status = '{status}' AND stack = '{stack}' LIMIT 1"
             run = self.cur.execute(qry)
@@ -151,7 +156,8 @@ class DB:
             row_name = self.nash_name(hand[1], hand[0])
             qry = f"SELECT id, status, stack, x{row_name.strip()} as score FROM nash WHERE status = '{status}' AND stack = '{stack}' LIMIT 1"
             run = self.cur.execute(qry)
-        # print(qry)
+        if self.test:
+            print(qry)
         return run.fetchone()
 
     def nash_name(self, h1: str, h2: str) -> str:

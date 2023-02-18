@@ -9,7 +9,7 @@ from vision import Vision
 class Game():
     """ Tempest Game Simulator """
 
-    def __init__(self, small_blind: int = 1, wallet: int = 50, wager: int = 0) -> None:
+    def __init__(self, small_blind: int = 1, base_wager: float = 0) -> None:
         self.delay = 1
         self.pot = 0
         self.hand = []
@@ -18,15 +18,16 @@ class Game():
         self.live = LIVE_PLAY
         self.use_keys = USE_KEYS
         self.testing = TESTING
-        self.wager = wager
+        self.base_wager = base_wager
+        self.wager = base_wager
         self.stacks = 0
         self.sb = small_blind
         self.bb = 2 * self.sb
+        self.pot_min = self.sb + self.bb
         self.opp_pushed = False
-        self.wallet = wallet
         self.action = False
         self.vsn = Vision()
-        self.db = DB()
+        self.db = DB(TESTING)
 
     def run(self) -> None:
         """ Main game loop """
@@ -35,12 +36,11 @@ class Game():
         while True:
 
             new_hand = self.vsn.cards()
+
+            self.update_wager()
+
             if new_hand and new_hand != self.hand and len(new_hand) == 2:
                 self.log(f"New Hand -> {new_hand}")
-
-                tmp_wallet = self.vsn.read_wallet()
-                if tmp_wallet and tmp_wallet > 0:
-                    self.wallet = tmp_wallet
 
                 self.hand = new_hand
                 self.games += 1
@@ -54,7 +54,7 @@ class Game():
                 self.pot = self.vsn.read_pot()
                 self.log(f"Pot -> {self.pot}")
 
-                self.opp_pushed = True if self.pot > self.sb + self.bb else False
+                self.opp_pushed = True if self.pot > self.pot_min else False
                 self.log(f"Opp Pushed -> {self.opp_pushed }")
 
                 if self.wager > 0:
@@ -72,6 +72,14 @@ class Game():
         if not self.testing or self.live:
             while not self.vsn.read_timer():
                 time.sleep(self.delay)
+
+    def update_wager(self):
+        tmp_wager = self.vsn.read_wallet()
+        if tmp_wager and tmp_wager != self.wager:
+            if float(tmp_wager) > self.base_wager:
+                tmp_wager = base_wager
+            self.log(f"New Wager -> {tmp_wager}")
+            self.wager = round(float(tmp_wager), 2)
 
     def random_delay(self) -> None:
         """ Delay game actions for a random amount of time """
@@ -126,20 +134,19 @@ class Game():
         print("\n###### SUMMARY ######\n")
         print(f"Game: {self.games}")
         print(f"Pot: {self.pot}")
-        print(f"Purse: {self.wager} \\ {self.wallet} ({self.stacks} Stacks)")
-        print(f"Hand: {self.hand} ({self.hand_odds}%)")
+        print(f"Purse: {self.wager} ({self.stacks} Stacks)")
+        print(f"Hand: {self.hand} ({self.hand_odds * 100}%)")
         print(f"Opponent Pushed: {self.opp_pushed}")
         print(f"Action: {self.action}")
         print("\n####################\n")
 
 
 if __name__ == "__main__":
-    small_blind = 0.50
-    wallet = 10  # buy in amount
-    wager = 1
+    small_blind = 0.25
+    base_wager = 4
     if not TESTING:
         print("Press 's' to start playing.")
         keyboard.wait('s')
 
-    play = Game(small_blind, wallet, wager)
+    play = Game(small_blind, base_wager)
     play.run()
