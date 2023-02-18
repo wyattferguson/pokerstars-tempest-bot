@@ -1,10 +1,11 @@
 
+
 # TABLE
 POT_LOCATION = {
-    'left': 550,
-    'top': 327,
-    'width': 180,
-    'height': 28
+    'left': 570,
+    'top': 280,
+    'width': 150,
+    'height': 30
 }
 
 
