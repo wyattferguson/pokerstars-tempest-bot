@@ -9,10 +9,8 @@ from vision import Vision
 class Game():
     """ Tempest Game Simulator """
 
-    def __init__(self, small_blind: int = 1, wallet: int = 50) -> None:
+    def __init__(self, small_blind: int = 1, wallet: int = 50, wager: int = 0) -> None:
         self.delay = 1
-        self.bluffing = BLUFFING
-        self.players = 0
         self.pot = 0
         self.hand = []
         self.hand_odds = 0
@@ -20,11 +18,10 @@ class Game():
         self.live = LIVE_PLAY
         self.use_keys = USE_KEYS
         self.testing = TESTING
-        self.wager = 0
+        self.wager = wager
         self.stacks = 0
         self.sb = small_blind
         self.bb = 2 * self.sb
-        self.gb = 2 * self.bb
         self.opp_pushed = False
         self.wallet = wallet
         self.action = False
@@ -36,11 +33,14 @@ class Game():
 
         print("Runnning!")
         while True:
-            self.wallet, self.wager = self.vsn.read_wallet(self.wallet, self.wager)
+
             new_hand = self.vsn.cards()
             if new_hand and new_hand != self.hand and len(new_hand) == 2:
-                self.log(f"Wager -> {self.wager}")
                 self.log(f"New Hand -> {new_hand}")
+
+                tmp_wallet = self.vsn.read_wallet()
+                if tmp_wallet and tmp_wallet > 0:
+                    self.wallet = tmp_wallet
 
                 self.hand = new_hand
                 self.games += 1
@@ -49,17 +49,13 @@ class Game():
                 self.hand_odds = round(winp['win'], 2)
                 self.log(f"Odds -> {self.hand_odds * 100}")
 
-                # wait until your timer appears
-                self.log("Waiting for my Turn")
-                if not self.testing or self.live:
-                    while not self.vsn.read_timer():
-                        time.sleep(self.delay)
+                self.wait_for_turn()
 
                 self.pot = self.vsn.read_pot()
                 self.log(f"Pot -> {self.pot}")
 
-                self.opp_pushed, self.players = self.vsn.read_players()
-                self.log(f"Players -> {self.players }")
+                self.opp_pushed = True if self.pot > self.sb + self.bb else False
+                self.log(f"Opp Pushed -> {self.opp_pushed }")
 
                 if self.wager > 0:
                     self.strategy()
@@ -70,14 +66,12 @@ class Game():
 
             time.sleep(self.delay)
 
-    def bluff(self) -> bool:
-        """ Radomly bluff at the set rates """
-
-        if self.hand_odds > BLUFF_MIN:
-            selector = random.randint(1, 10)
-            if selector <= BLUFF_RATE:
-                return True
-        return False
+    def wait_for_turn(self) -> None:
+        # wait until your timer appears
+        self.log("Waiting for my Turn")
+        if not self.testing or self.live:
+            while not self.vsn.read_timer():
+                time.sleep(self.delay)
 
     def random_delay(self) -> None:
         """ Delay game actions for a random amount of time """
@@ -106,7 +100,7 @@ class Game():
     def strategy(self) -> None:
         """ Nash push/fold strategy """
 
-        self.stacks = round(self.wager / self.gb, 1)
+        self.stacks = round(self.wager / self.bb, 1)
         status = "call" if self.opp_pushed else "push"
         nash_row = self.db.get_nash(self.stacks, status, self.hand)
 
@@ -140,12 +134,12 @@ class Game():
 
 
 if __name__ == "__main__":
-    small_blind = 0.02
-    wallet = 1  # buy in amount
-
+    small_blind = 0.50
+    wallet = 10  # buy in amount
+    wager = 1
     if not TESTING:
         print("Press 's' to start playing.")
         keyboard.wait('s')
 
-    play = Game(small_blind, wallet)
+    play = Game(small_blind, wallet, wager)
     play.run()
