@@ -13,7 +13,7 @@ ocr.pytesseract.tesseract_cmd = r'C:\\Program Files\\Tesseract-OCR\\tesseract.ex
 class Vision():
     def __init__(self) -> None:
         self.snap = mss.mss()
-        self.threshold = 0.65
+        self.threshold = 0.45
 
     def cards(self) -> list[Card, Card]:
         hand = []
@@ -29,13 +29,13 @@ class Vision():
                 match_score = self.match_image(grey_card, card_needle)
 
                 if match_score > self.threshold and match_score > best_score:
-                    # print(match_score, n)
+                    print(match_score, n)
                     best_score = match_score
                     card_value = n
             if card_value and best_score > self.threshold:
                 card_suit = self.card_suit(idx)
 
-                # print(card_value, card_suit)
+                print(card_value, card_suit)
                 if card_suit:
                     hand.append(Card(card_value, card_suit))
                 else:
@@ -88,6 +88,7 @@ class Vision():
 
     def read_pot(self) -> float:
         screen_img = self.screen_shot(POT_LOCATION)
+        # self.popup_image(screen_img)
         img_str = ocr.image_to_string(screen_img)
         values = re.sub('[^0-9^.]', '', img_str.strip())
         return float(values) if values else False
@@ -121,10 +122,10 @@ if __name__ == "__main__":
     vsn = Vision()
     while True:
         # pot = vsn.read_pot()
-        # print(pot)
-        wallet = vsn.read_wallet()
-        print(wallet)
-        # cards = vsn.cards()
-        # print(cards)
+        # print("Pot:", pot)
+        # wallet = vsn.read_wallet()
+        # print("Wallet:", wallet)
+        cards = vsn.cards()
+        print(cards)
         # print(vsn.read_timer())
         time.sleep(1)

@@ -28,11 +28,13 @@ DECK = [f"{c}{s}" for s in SUITS for c in ALL_CARDS]
 
 PRECISION = 3
 
+WINDOW_X = 85
+WINDOW_Y = 90
 
 # TABLE
 POT_LOCATION = {
-    'left': 570,
-    'top': 280,
+    'left': 570 + WINDOW_X,
+    'top': 280 + WINDOW_Y,
     'width': 150,
     'height': 30
 }
@@ -42,15 +44,15 @@ POT_LOCATION = {
 
 CARD_PATH = f"{DIR_PATH}\\needles\\pokerstars\\"
 
-CARD_OFFSET = 83
-CARD_SUIT_Y_OFFSET = 33
-CARD_SUIT_X_OFFSET = 0
+CARD_OFFSET = 90
+CARD_SUIT_Y_OFFSET = 37
+CARD_SUIT_X_OFFSET = 4
 CARD_SUIT_SQR = 20
 
 CARD1_VALUE = {
-    'left': 562,
-    'top': 570,
-    'width': 22,
+    'left': 555 + WINDOW_X,
+    'top': 613 + WINDOW_Y,
+    'width': 30,
     'height': 30
 }
 
@@ -75,15 +77,15 @@ CARD2_SUIT = {
     'height': CARD_SUIT_SQR
 }
 
-CARD_VALUE_LOCAIONS = [CARD1_VALUE, CARD2_VALUE]
-CARD_SUIT_LOCAIONS = [CARD1_SUIT, CARD2_SUIT]
+CARD_VALUE_LOCAIONS = [CARD1_VALUE]
+CARD_SUIT_LOCAIONS = [CARD1_SUIT]
 
 
 # player info
 
 WALLET_LOCATION = {
-    'left': 600,
-    'top': 670,
+    'left': 590 + WINDOW_X,
+    'top': 727 + WINDOW_Y,
     'width': 150,
     'height': 25
 }
