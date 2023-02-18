@@ -88,7 +88,7 @@ class Vision():
 
     def read_pot(self) -> float:
         screen_img = self.screen_shot(POT_LOCATION)
-        self.popup_image(screen_img)
+        # self.popup_image(screen_img)
         img_str = ocr.image_to_string(screen_img)
         values = re.sub('[^0-9^.]', '', img_str.strip())
         return float(values) if values else False

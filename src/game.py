@@ -6,6 +6,15 @@ from database import DB
 from vision import Vision
 
 
+"""
+TODO:
+- Max stack is what ever the other oppent has
+- take anything over 56&
+- fix read player timer
+- fix stack calculation
+"""
+
+
 class Game():
     """ Tempest Game Simulator """
 
@@ -74,12 +83,13 @@ class Game():
                 time.sleep(self.delay)
 
     def update_wager(self):
-        tmp_wager = self.vsn.read_wallet()
-        if tmp_wager and tmp_wager != self.wager:
-            if float(tmp_wager) > self.base_wager:
-                tmp_wager = base_wager
-            self.log(f"New Wager -> {tmp_wager}")
-            self.wager = round(float(tmp_wager), 2)
+        try:
+            tmp_wager = self.vsn.read_wallet()
+            if tmp_wager and tmp_wager != self.wager:
+                # self.log(f"New Wager -> {tmp_wager}")
+                self.wager = round(float(tmp_wager), 2)
+        except Exception as e:
+            self.wager = self.base_wager
 
     def random_delay(self) -> None:
         """ Delay game actions for a random amount of time """
@@ -109,6 +119,8 @@ class Game():
         """ Nash push/fold strategy """
 
         self.stacks = round(self.wager / self.bb, 1)
+        if self.stacks > 20:
+            self.stacks = 20
         status = "call" if self.opp_pushed else "push"
         nash_row = self.db.get_nash(self.stacks, status, self.hand)
 
@@ -117,7 +129,7 @@ class Game():
 
         self.log(nash_row)
 
-        if nash_row['score'] >= 0.5:
+        if nash_row['score'] >= 0.5 or self.hand_odds >= 0.56:
             self.push_allin()
         else:
             self.fold()
@@ -142,8 +154,8 @@ class Game():
 
 
 if __name__ == "__main__":
-    small_blind = 0.25
-    base_wager = 4
+    small_blind = 0.5
+    base_wager = 8
     if not TESTING:
         print("Press 's' to start playing.")
         keyboard.wait('s')
