@@ -1,58 +1,54 @@
 
-import random
 import time
 from pathlib import Path
 
 
 DIR_PATH = Path(__file__).parent
 
-# game options
-PLAYER_SEAT = 0  # 0 -> 3, 0 center, then clock wise
+# GAME OPTIONS
 TESTING = True  # toggle testing and logging
-BLUFFING = False  # toggle use of bluffing
 USE_KEYS = False  # toggle using shortcut keys in game
-LIVE_PLAY = False
 
-BLUFF_RATE = 1  # 0 (never) -> 10 (always)
-BLUFF_MIN = 0.43  # minimum hand strength to bluff
+SMALL_BLIND = 1
+HAND_WAGER = 10
 
-DELAY_UPPER = 3.2  # upper time bound to delay action on screen
-DELAY_LOWER = 0.6  # lower bound for action on screen
 
-# card / deck generation
+ACTIONS = {
+    # action : keyboard shortcut
+    'call': ('ctrl', 'alt', 'c'),
+    'fold': ('ctrl', 'alt', 'f')
+}
+
+# CARDS / DECK
 
 SUITS = ["s", "c", "h", "d"]
-FACE_CARDS = {1: 'A', 11: 'J', 12: 'Q', 13: 'K', 14: 'A'}
 ALL_CARDS = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A']
 DECK = [f"{c}{s}" for s in SUITS for c in ALL_CARDS]
 
-PRECISION = 3
-
-WINDOW_X = 85
-WINDOW_Y = 90
 
 # TABLE
+
 POT_LOCATION = {
-    'left': 570 + WINDOW_X,
-    'top': 280 + WINDOW_Y,
+    'left': 570,
+    'top': 280,
     'width': 150,
     'height': 30
 }
 
 
-# CARD / SUIT LOCATIONS
+# CARD / SUIT
 
-CARD_PATH = f"{DIR_PATH}\\needles\\pokerstars\\"
+CARD_PATH = f"{DIR_PATH}\\needles\\"
 
-CARD_OFFSET = 90
-CARD_SUIT_Y_OFFSET = 37
-CARD_SUIT_X_OFFSET = 4
+CARD_OFFSET = 83
+CARD_SUIT_Y_OFFSET = 33
+CARD_SUIT_X_OFFSET = 0
 CARD_SUIT_SQR = 20
 
 CARD1_VALUE = {
-    'left': 555 + WINDOW_X,
-    'top': 613 + WINDOW_Y,
-    'width': 30,
+    'left': 562,
+    'top': 570,
+    'width': 22,
     'height': 30
 }
 
@@ -77,15 +73,15 @@ CARD2_SUIT = {
     'height': CARD_SUIT_SQR
 }
 
-CARD_VALUE_LOCAIONS = [CARD1_VALUE]
-CARD_SUIT_LOCAIONS = [CARD1_SUIT]
+CARD_VALUE_LOCAIONS = [CARD1_VALUE, CARD2_VALUE]
+CARD_SUIT_LOCAIONS = [CARD1_SUIT, CARD2_SUIT]
 
 
-# player info
+# PLAYER
 
 WALLET_LOCATION = {
-    'left': 590 + WINDOW_X,
-    'top': 727 + WINDOW_Y,
+    'left': 575,
+    'top': 670,
     'width': 150,
     'height': 25
 }

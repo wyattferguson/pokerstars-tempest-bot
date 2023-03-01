@@ -20,16 +20,4 @@ class Card:
 
 
 if __name__ == "__main__":
-    c1 = Card("9", "c")
-    c2 = Card("Q", "h")
-    # hand = [Card("9", "c"), Card("2", "d")]
-    if c1 == c2:
-        print("THE SAME")
-    else:
-        print("DIFF")
-
-    print(c1.value)
-    c1.value = "K"
-    # error = Card("L", "s")  # value error
-
-    # error = Card("T", "i")  # suit error
+    pass
