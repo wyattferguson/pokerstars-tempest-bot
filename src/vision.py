@@ -1,11 +1,16 @@
 
 import re
+import time
+
 import cv2
 import mss
 import numpy as np
 import pytesseract as ocr
+
 from card import Card
-from config import *
+from config import (ALL_CARDS, CARD_PATH, CARD_SUIT_LOCAIONS,
+                    CARD_VALUE_LOCAIONS, POT_LOCATION, SUITS, TIMER_LOCATION,
+                    WALLET_LOCATION)
 
 ocr.pytesseract.tesseract_cmd = r'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
 

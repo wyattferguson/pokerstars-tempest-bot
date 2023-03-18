@@ -1,5 +1,6 @@
 
 from dataclasses import dataclass, field
+
 from config import ALL_CARDS, SUITS
 
 

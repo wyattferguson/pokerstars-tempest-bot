@@ -1,8 +1,8 @@
 import sqlite3
 from sqlite3 import Error
 
-from config import *
 from card import Card
+from config import DIR_PATH
 
 
 class DB:
@@ -25,7 +25,10 @@ class DB:
         return d
 
     def hand(self, hand: list[Card, Card]) -> dict:
-        qry = f"SELECT * FROM hands WHERE (card1 = '{hand[0]}' AND card2 = '{hand[1]}') OR (card1 = '{hand[1]}' AND card2 = '{hand[0]}') LIMIT 1"
+        qry = f"SELECT * FROM hands \
+            WHERE (card1 = '{hand[0]}' AND card2 = '{hand[1]}') \
+            OR (card1 = '{hand[1]}' AND card2 = '{hand[0]}') \
+            LIMIT 1"
         return self._run(qry)
 
     def nash(self, stack: float, opp_pushed: bool, hand: list[Card, Card]) -> dict:
@@ -40,7 +43,7 @@ class DB:
         # nash name could be in 2 different formats so try both if needed
         try:
             row = self._nash_lookup(hand[0], hand[1], status, stack)
-        except Exception as e:
+        except Exception:
             row = self._nash_lookup(hand[1], hand[0], status, stack)
 
         return row
@@ -51,7 +54,9 @@ class DB:
             suited = "s" if h1.suit == h2.suit else "o"
             name = f"{name}{suited}"
 
-        qry = f"SELECT id, status, stack, x{name.strip()} as score FROM nash WHERE status = '{status}' AND stack = '{stack}' LIMIT 1"
+        qry = f"SELECT id, status, stack, x{name.strip()} as score FROM nash \
+            WHERE status = '{status}' AND stack = '{stack}' \
+            LIMIT 1"
         return self._run(qry)
 
     def _run(self, qry: str = "", single: bool = True) -> dict:

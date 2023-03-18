@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "tempest-poker"
+version = "0.1.0"
+description = "A bot to play push/fold (aka. Tempest Poker) on PokerStars"
+authors = ["Wyatt Ferguson <wyattxdev@duck.com>"]
+readme = "README.md"
+packages = [{include = "tempest_poker"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+keyboard = "0.13.5"
+mss = "7.0.1"
+numpy = "1.23.3"
+opencv-python = "4.7.0.68"
+pandas = "1.5.0"
+pyautogui = "0.9.53"
+pytesseract = "0.3.10"
+treys = "0.1.8"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -1,6 +1,9 @@
 
+import time
+
 from pyautogui import hotkey
-from config import *
+
+from config import ACTIONS, HAND_WAGER, SMALL_BLIND, TESTING, USE_KEYS
 from database import DB
 from vision import Vision
 
@@ -57,7 +60,7 @@ class Game():
             tmp_wager = self.vsn.read_wallet()
             if tmp_wager and float(tmp_wager) != self.wager:
                 self.wager = float(tmp_wager)
-        except Exception as e:
+        except Exception:
             self.wager = self.base_wager
 
     def strategy(self) -> None:
@@ -74,12 +77,12 @@ class Game():
 
     def __str__(self) -> str:
         return f"""
-            ###### SUMMARY ######
-            Pot: {self.pot}
-            Purse: {self.wager} ({self.stacks} Stacks)
-            Hand: {self.hand} ({self.hand_odds}%)
-            Opponent Pushed: {self.opp_pushed}
-            Action: {self.action}
+        ###### SUMMARY ######
+        Pot: {self.pot}
+        Purse: {self.wager} ({self.stacks} Stacks)
+        Hand: {self.hand} ({self.hand_odds}%)
+        Opponent Pushed: {self.opp_pushed}
+        Action: {self.action}
         """
 
 
