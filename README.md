@@ -1,4 +1,4 @@
-# Poker Stars - Tempest Bot
+# :black_joker: Poker Stars - Tempest Bot
 
 ![Tempest Bot Running](screenshot.png)
 
@@ -23,7 +23,7 @@ Heres a simple run down of how it works:
 6. Print all your hand information and recommendation to the console.
 7. Repeat.
 
-## Installation
+## :microscope: Installation
 
 Installation is 3 basic steps first install all the reqs:
 
@@ -35,13 +35,13 @@ Next you will need to install Tesseract-OCR:
 
 Lastly after tesseract is installed you will need to update the _ocr.pytesseract.tesseract_cmd_ in _vision.py_ file with the installation path of tesseract.
 
-## Setup + Configuration
+## :shaved_ice: Setup + Configuration
 
 All configurations can be fonud in the _config.py_ file. The big setup challenge will be getting the positions setup for the player. I was using a 2k screen and the game board was snapped to he left using the Windows tile manager and thats how I calculated where everything is. Also your small blind and max push value can be set here also.
 
 In the _vision.py_ file I have a _popup_image_ function that will show any screenshot you pass it so you can use that norrow in your X/Y positions of everything.
 
-## License + Legal
+## :ramen: License + Legal
 
 This project is provided as is, and is intended for educational purposes only and should not be used to actual gambling.
 
