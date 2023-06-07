@@ -45,10 +45,15 @@ In the _vision.py_ file I have a _popup_image_ function that will show any scree
 
 This project is provided as is, and is intended for educational purposes only and should not be used to actual gambling.
 
+
 ## :postbox: Contact & Support
 
-Created by [Wyatt Ferguson](@wyattxdev@mastodon.social)
+Created by [Wyatt Ferguson](https://twitter.com/wyattxdev)
 
-For any comments or questions message me on [Mastodon](@wyattxdev@mastodon.social)
+For any questions or comments you can send them to me on my socials:
+### :shaved_ice: Follow on [Mastodon @wyattxdev@mastodon.social](@wyattxdev@mastodon.social)
+### :tropical_drink: Follow on [Twitter @wyattxdev](https://twitter.com/wyattxdev)
 
-[:coffee: Buy Me A Coffee](https://www.buymeacoffee.com/wyattferguson)
+
+If you find this useful and want to tip me a little coffee money:
+### :coffee: [Buy Me A Coffee](https://www.buymeacoffee.com/wyattferguson)
