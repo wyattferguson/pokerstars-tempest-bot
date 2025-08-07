@@ -1,23 +1,81 @@
-[tool.poetry]
+[project]
 name = "tempest-poker"
-version = "0.1.0"
+version = "0.0.4"
 description = "A bot to play push/fold (aka. Tempest Poker) on PokerStars"
-authors = ["Wyatt Ferguson <wyattxdev@duck.com>"]
+authors = [{ name = "Wyatt Ferguson", email = "wyattxdev@duck.com" }]
+license = { file = "LICENSE" }
 readme = "README.md"
-packages = [{include = "tempest_poker"}]
+keywords = ['tempest', 'poker', 'bot', 'pokerstars', 'pushfold', 'ocr']
+requires-python = ">=3.11,<4"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
 
-[tool.poetry.dependencies]
-python = "^3.10"
-keyboard = "0.13.5"
-mss = "7.0.1"
-numpy = "1.23.3"
-opencv-python = "4.7.0.68"
-pandas = "1.5.0"
-pyautogui = "0.9.53"
-pytesseract = "0.3.10"
-treys = "0.1.8"
+dependencies = [
+    "ruff>=0.12.0",
+    "mypy >=1.16.1",
+    "keyboard>=0.13.5",
+    "mss>=7.0.1",
+    "numpy>=1.23.3",
+    "opencv_python>=4.7.0.68",
+    "pandas>=1.5.0",
+    "PyAutoGUI>=0.9.53",
+    "pytesseract>=0.3.10",
+    "treys>=0.1.8"
+]
+
+[project.urls]
+Repository = "https://github.com/wyattferguson/pokerstars-tempest-bot"
+Documentation = "https://github.com/wyattferguson/pokerstars-tempest-bot"
+Issues = "https://github.com/wyattferguson/pokerstars-tempest-bot/issues"
+
+[tool.ruff]
+line-length = 100
+indent-width = 4
+format.indent-style = "space"
+target-version = "py313"
+src = ["src"]
+
+[tool.ruff.lint]
+pydocstyle.convention = "google"
+fixable = ["ALL"]
+select = ["ALL"]
+ignore = [
+    "FA102", # Flake8-future-annotations
+    "F401", # Disable fix for unused imports
+    "B904", # Allow raising exceptions without from e
+    "PLR0913", # too many arguments
+    "CPY", # Flake8-copyright
+    "T201", # Debugging print statements
+    "ERA", # Eradicate – detects commented-out code
+    "BLE001", # Catch-all exceptions
+    "D100", # missing docstring in public module
+    "D105", # undocumented magic method
+    "D107", # undocumented public init
+    "D203", # incorrect-blank-line-before-class
+    "D205", # line-between-summary-and-description
+    "D212", # multi-line-summary-first-line
+    "D400", # missing-trailing-period
+    "D407", # missing-dashed-underline-after-section
+    "S311", # rand-usage
+    "EM102", # f-string-exception
+    "TRY003", # long-exception-messages
+]
 
 
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[tool.mypy]
+files = ["src"]
+disallow_untyped_defs = true
+disallow_any_unimported = true
+no_implicit_optional = true
+check_untyped_defs = true
+warn_return_any = true
+warn_unused_ignores = true
+show_error_codes = true

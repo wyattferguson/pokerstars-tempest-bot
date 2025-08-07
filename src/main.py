@@ -1,36 +1,35 @@
-
 import time
 
 from pyautogui import hotkey
 
-from config import ACTIONS, HAND_WAGER, SMALL_BLIND, TESTING, USE_KEYS
+from _config import ACTIONS, CALL_THRESHOLD, HAND_WAGER, SMALL_BLIND, TESTING, USE_KEYS
+from _types import Action, Card
 from database import DB
 from vision import Vision
 
 
-class Game():
-    """ PokerStars Tempest Game Player """
+class Game:
+    """PokerStars Tempest Game Player."""
 
     def __init__(self) -> None:
-        self.delay = 1  # Delay between new hand check in seconds
-        self.pot = 0
-        self.hand = []
-        self.hand_odds = 0
-        self.base_wager = HAND_WAGER
-        self.wager = HAND_WAGER
-        self.stacks = 0
-        self.sb = SMALL_BLIND
-        self.bb = 2 * self.sb  # big blind
-        self.gb = 2 * self.bb  # giant blind
-        self.pot_min = self.sb + self.bb + self.gb
-        self.opp_pushed = False  # has another player pushed all in
-        self.action = False
+        self.delay: int = 1  # Delay between new hand check in seconds
+        self.pot: int = 0
+        self.hand: list[Card] = []
+        self.hand_odds: float = 0
+        self.base_wager: float = HAND_WAGER
+        self.wager: float = HAND_WAGER
+        self.stacks: int = 0
+        self.sb: int = SMALL_BLIND
+        self.bb: int = 2 * self.sb  # big blind
+        self.gb: int = 2 * self.bb  # giant blind
+        self.pot_min: int = self.sb + self.bb + self.gb
+        self.opp_pushed: bool = False  # has another player pushed all in
+        self.action: Action = Action.WAIT
         self.vsn = Vision()
         self.db = DB()
 
     def run(self) -> None:
-        """ Main game loop """
-
+        """Main game loop."""
         print("Runnning!")
         while True:
             new_hand = self.vsn.cards()
@@ -38,10 +37,10 @@ class Game():
             if new_hand and new_hand != self.hand and len(new_hand) == 2:
                 self.hand = new_hand
                 hand_info = self.db.hand(self.hand)
-                self.hand_odds = round(hand_info['win'], 2) * 100
+                self.hand_odds = round(hand_info["win"], 2) * 100
                 self.wait_for_turn()
                 self.pot = self.vsn.read_pot()
-                self.opp_pushed = True if self.pot > self.pot_min else False
+                self.opp_pushed = self.pot > self.pot_min
                 self.strategy()
 
                 print(self)
@@ -49,13 +48,13 @@ class Game():
             time.sleep(self.delay)
 
     def wait_for_turn(self) -> None:
-        """ wait for your timer to appear """
+        """Wait for your timer to appear."""
         if not TESTING:
             while not self.vsn.read_timer():
                 time.sleep(self.delay)
 
-    def update_wager(self):
-        """ Try to read hand wager """
+    def update_wager(self) -> None:
+        """Try to read hand wager."""
         try:
             tmp_wager = self.vsn.read_wallet()
             if tmp_wager and float(tmp_wager) != self.wager:
@@ -64,16 +63,16 @@ class Game():
             self.wager = self.base_wager
 
     def strategy(self) -> None:
-        """ Nash push/fold strategy """
+        """Nash push/fold strategy."""
         if self.wager > 0:
             self.stacks = round(self.wager / self.gb, 1)
             nash_row = self.db.nash(self.stacks, self.opp_pushed, self.hand)
 
-            self.action = 'call' if nash_row['score'] >= 0.5 else 'fold'
+            self.action = Action.CALL if nash_row["score"] >= CALL_THRESHOLD else Action.FOLD
             if USE_KEYS:
                 hotkey(*ACTIONS[self.action])
         else:
-            self.action = "No wager"
+            self.action = Action.WAIT
 
     def __str__(self) -> str:
         return f"""

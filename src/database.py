@@ -1,12 +1,13 @@
 import sqlite3
 from sqlite3 import Error
+from typing import Any
 
-from card import Card
-from config import DIR_PATH
+from _config import DIR_PATH, MAX_STACK
+from _types import Action, Card
 
 
 class DB:
-    """ simple sqllite3 wrapper """
+    """simple sqllite3 wrapper."""
 
     def __init__(self) -> None:
         self.db_name = "../pushfold.db"
@@ -24,21 +25,21 @@ class DB:
             d[col[0]] = row[idx]
         return d
 
-    def hand(self, hand: list[Card, Card]) -> dict:
-        qry = f"SELECT * FROM hands \
-            WHERE (card1 = '{hand[0]}' AND card2 = '{hand[1]}') \
-            OR (card1 = '{hand[1]}' AND card2 = '{hand[0]}') \
+    def hand(self, hand: list[Card]) -> dict:
+        qry = "SELECT * FROM hands \
+            WHERE (card1 = ? AND card2 = ?) \
+            OR (card1 = ? AND card2 = ?) \
             LIMIT 1"
-        return self._run(qry)
+        return self._run(qry, (str(hand[0]), str(hand[1]), str(hand[1]), str(hand[0])))
 
-    def nash(self, stack: float, opp_pushed: bool, hand: list[Card, Card]) -> dict:
+    def nash(self, stack: float, opp_pushed: bool, hand: list[Card]) -> dict:
         # keep stack within bounds (1.1 -> 200)
         if stack <= 1:
             stack = 1.1
-        elif stack > 200:
-            stack = 200
+        elif stack > MAX_STACK:
+            stack = MAX_STACK
 
-        status = "call" if opp_pushed else "push"
+        status = Action.CALL if opp_pushed else Action.PUSH
 
         # nash name could be in 2 different formats so try both if needed
         try:
@@ -54,15 +55,11 @@ class DB:
             suited = "s" if h1.suit == h2.suit else "o"
             name = f"{name}{suited}"
 
-        qry = f"SELECT id, status, stack, x{name.strip()} as score FROM nash \
-            WHERE status = '{status}' AND stack = '{stack}' \
+        qry = "SELECT id, status, stack, x? as score FROM nash \
+            WHERE status = ? AND stack = ? \
             LIMIT 1"
-        return self._run(qry)
+        return self._run(qry, (name.strip(), status, stack))
 
-    def _run(self, qry: str = "", single: bool = True) -> dict:
-        run = self.cur.execute(qry)
-        return run.fetchone() if single else run.fetchall()
-
-
-if __name__ == "__main__":
-    pass
+    def _run(self, qry: str = "", params: tuple = None) -> dict[str, Any]:
+        run = self.cur.execute(qry, params or ())
+        return run.fetchone()

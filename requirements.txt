@@ -1,8 +1,0 @@
-keyboard==0.13.5
-mss==7.0.1
-numpy==1.23.3
-opencv_python==4.7.0.68
-pandas==1.5.0
-PyAutoGUI==0.9.53
-pytesseract==0.3.10
-treys==0.1.8
